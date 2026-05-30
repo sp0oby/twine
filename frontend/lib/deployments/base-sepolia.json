@@ -1,0 +1,22 @@
+{
+  "chainId": 84532,
+  "poolManager": "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408",
+  "hook": "0xc3D093Ecc9029dAD3684d08c506f957bB0276ac0",
+  "positionManager": "0xb8512f2d1CA89e56CDbB2b7Ef3e94B38434a66a2",
+  "governor": "0x5957034C90cd8e44Ee4361ECbBC41B9E90D72387",
+  "strand": "0x4CAD1C5cFA9C20F3cfcC2C8881b4a9fdd63D20e3",
+  "vault": "0x9eDaffC2E81986109E87cE6f35243aAc739E7FFC",
+  "token0": "0xA6b3748023540af1aD4C4731E8B8A09fACFf737e",
+  "token1": "0xc6224Cd78116CCcF9392F0035AFAf18fFE980ff2",
+  "oracle0": "0x76c463f9624A9db156c31859ad32D09B51E67200",
+  "oracle1": "0x940fcC51Ab6A9E6A874625f998C368C586BacE02",
+  "marketHours": "0xBf57Ff24C7398029620948Db7F0795C63B31C2b3",
+  "poolId": "0xf15659aa511f2765635581013494f898f3715e8e486552ef0cff96cd461d9f07",
+  "tickSpacing": 60,
+  "baseFeeBps": 30,
+  "toleranceBps": 500,
+  "hardThresholdBps": 1500,
+  "drawdownBps": 2000,
+  "vaultFeeBps": 2000,
+  "buybackBps": 1000
+}

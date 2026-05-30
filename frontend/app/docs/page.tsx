@@ -1,0 +1,121 @@
+import Link from "next/link";
+
+import {Header} from "@/components/Header";
+import {Footer} from "@/components/Footer";
+
+export default function DocsPage() {
+  return (
+    <main className="min-h-screen">
+      <Header />
+      <article className="mx-auto max-w-2xl px-6 pt-24 pb-32">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Docs</p>
+        <h1 className="mt-3 text-[36px] sm:text-[44px] font-medium tracking-[-0.02em] leading-[1.1]">
+          How Twine works.
+        </h1>
+        <p className="mt-8 text-[17px] leading-relaxed text-ink/85">
+          Twine is a Uniswap v4 hook. The hook makes a pool behave less like a passive AMM and more
+          like a tightly-managed pair-trade vehicle. Two long-only tokens, one continuously enforced
+          economic relationship.
+        </p>
+
+        <Section label="The hook">
+          <p>
+            Every swap routes through the hook's <code className="font-mono">beforeSwap</code>{" "}
+            callback. The hook reads two oracle prices and the pool's current ratio, computes the
+            implied drift from fair value, and returns an asymmetric fee. Swaps that move the pool
+            <em> toward</em> fair are discounted below the base fee; swaps that move it away are
+            surcharged. The result is a market force that pulls the pool back to the implied
+            equilibrium without LPs or stakers having to actively manage anything.
+          </p>
+        </Section>
+
+        <Section label="LPs vs stakers">
+          <p>
+            <span className="text-white">Liquidity providers</span> deposit token0 and token1, mint
+            non-transferable LP shares against a TwinePositionManager, and collect a share of swap
+            fees in both tokens. They do <em>not</em> bear structural-break risk.
+          </p>
+          <p className="mt-4">
+            <span className="text-white">STRAND stakers</span> deposit a governance asset into the
+            per-pool underwriting vault. They earn a configurable cut of swap fees in token0/token1
+            but underwrite the pool: when the hook declares a structural break, it seizes a
+            fraction of staked STRAND to fund a rebalance and every staker takes a pro-rata
+            haircut. A seven-day cooldown blocks staker flight during a break.
+          </p>
+        </Section>
+
+        <Section label="Market hours">
+          <p>
+            MSTRX has a real underlying, a US-listed equity. When NYSE is closed Twine cannot
+            promise the spread will converge, so the hook detects market hours through an
+            on-chain registry and switches to flat symmetric fees in those windows. Pool stays
+            tradable; the asymmetric mechanic is paused until markets open.
+          </p>
+        </Section>
+
+        <Section label="Structural breaks">
+          <p>
+            If the oracle disagrees with the pool by more than a hard threshold (default 15%) and
+            the pool's recent drawdown exceeds a separate threshold, the hook flips a{" "}
+            <code className="font-mono">structuralBreak</code> flag and disables both directional
+            fees and new LP deposits. A drawdown from the vault funds the rebalance back to fair
+            value. Withdrawals stay open the entire time.
+          </p>
+        </Section>
+
+        <Section label="Status">
+          <pre className="font-mono text-[13px] leading-[1.8] text-ink/80 border-l border-line pl-5 whitespace-pre">
+{`Spec version       v0.11
+Build phase        0–7 + plug-and-play infra
+Contracts          Solidity 0.8.26  (BUSL / MIT)
+Tests              173 passing  ·  100k invariants clean
+Audit              pending
+Network            Base Sepolia testnet  (mocked equity leg)`}
+          </pre>
+        </Section>
+
+        <Section label="Source">
+          <ul className="space-y-2 font-mono text-[13px]">
+            <SourceLink href="#" label="PROJECT_SPEC.md" hint="canonical specification" />
+            <SourceLink href="#" label="TODO.md" hint="build progress" />
+            <SourceLink href="#" label="Source on GitHub" hint="contracts + tests" />
+          </ul>
+        </Section>
+
+        <div className="mt-20">
+          <Link
+            href="/app"
+            className="inline-flex items-center border border-line px-6 py-3 font-mono text-[12px] uppercase tracking-[0.22em] text-white hover:bg-white/5 transition-colors"
+          >
+            Open the dashboard →
+          </Link>
+        </div>
+      </article>
+      <Footer />
+    </main>
+  );
+}
+
+function Section({label, children}: {label: string; children: React.ReactNode}) {
+  return (
+    <section className="mt-16">
+      <h2 className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">{label}</h2>
+      <div className="mt-4 space-y-4 text-[15px] leading-[1.75] text-ink/85">{children}</div>
+    </section>
+  );
+}
+
+function SourceLink({href, label, hint}: {href: string; label: string; hint: string}) {
+  return (
+    <li>
+      <a
+        href={href}
+        className="group inline-flex items-baseline gap-3 hover:text-white transition-colors"
+      >
+        <span className="underline-offset-4 group-hover:underline">{label}</span>
+        <span className="text-muted">·</span>
+        <span className="text-muted">{hint}</span>
+      </a>
+    </li>
+  );
+}

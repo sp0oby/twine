@@ -1,0 +1,33 @@
+# Foundry build & sim artifacts
+out/
+cache/
+broadcast/
+
+# Env / secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.key
+keystore/
+
+# Node / frontend / indexer
+node_modules/
+.next/
+.ponder/
+dist/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Tooling / sessions
+.claude/
+.cursor/
+*.log
+
+# Editor-created duplicates (e.g. Finder "Foo 2.toml" copies)
+"* 2.*"
+"* copy.*"
+"* copy *.*"
