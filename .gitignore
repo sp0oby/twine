@@ -28,6 +28,6 @@ dist/
 *.log
 
 # Editor-created duplicates (e.g. Finder "Foo 2.toml" copies)
-"* 2.*"
-"* copy.*"
-"* copy *.*"
+* 2.*
+* copy.*
+* copy *.*

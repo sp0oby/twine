@@ -18,5 +18,6 @@
   "hardThresholdBps": 1500,
   "drawdownBps": 2000,
   "vaultFeeBps": 2000,
-  "buybackBps": 1000
+  "buybackBps": 1000,
+  "swapRouter": "0x356a856cc75229F7bD260A6D2601De56f4A0ebB2"
 }
