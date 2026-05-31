@@ -50,32 +50,36 @@ export function useSwapQuote({
     }
 
     let cancelled = false;
-    setLoading(true);
-
-    publicClient
-      .simulateContract({
-        address: router,
-        abi: swapRouterAbi,
-        functionName: "swap",
-        args: [poolKey, zeroForOne, amountIn, 0n, account, ZERO_BYTES],
-        account,
-      })
-      .then((res) => {
-        if (cancelled) return;
-        setQuote(res.result as bigint);
-        setError(undefined);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setQuote(undefined);
-        setError(extractRevertReason(e));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    // Debounce: wait 400ms after the last input change before firing the simulate. Stops the
+    // RPC flood that used to happen when the user typed an amount character-by-character.
+    const timer = setTimeout(() => {
+      setLoading(true);
+      publicClient
+        .simulateContract({
+          address: router,
+          abi: swapRouterAbi,
+          functionName: "swap",
+          args: [poolKey, zeroForOne, amountIn, 0n, account, ZERO_BYTES],
+          account,
+        })
+        .then((res) => {
+          if (cancelled) return;
+          setQuote(res.result as bigint);
+          setError(undefined);
+        })
+        .catch((e) => {
+          if (cancelled) return;
+          setQuote(undefined);
+          setError(extractRevertReason(e));
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 400);
 
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [publicClient, router, poolKey, zeroForOne, amountIn, account]);
 

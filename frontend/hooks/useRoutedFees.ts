@@ -17,7 +17,7 @@ import {getDeployment} from "@/lib/twine";
  */
 export function useRoutedFees({
   lookbackBlocks = 25_000n,
-  refetchMs = 30_000,
+  refetchMs = 90_000,
   chunkSize = 2_000n,
 }: {lookbackBlocks?: bigint; refetchMs?: number; chunkSize?: bigint} = {}) {
   const chainId = useChainId();
