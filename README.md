@@ -82,16 +82,27 @@ The canonical machine-readable copy lives in [`frontend/lib/deployments/base-sep
 ## Architecture
 
 ```
-TwineHook                beforeSwap / afterSwap, asymmetric fee, structural-break flag
+TwineHook                beforeSwap / afterSwap, asymmetric fee, structural-break flag,
+                         auto-realizes fees on every swap
 TwinePositionManager     ERC-6909 LP shares, fee accumulator, vault and buyback routing
 TwineUnderwritingVault   per-pool STRAND vault, drawdown bound to the hook
 TwineGovernor            pool authorization, parameter updates, fee config
 TwineSwapRouter          minimal IUnlockCallback wrapper for EOA swaps with slippage
-oracle/                  Chainlink adapter, dual-oracle adapter, multisig market hours
+oracle/                  Chainlink adapter, dual-oracle adapter, NyseHoursOracle (on-chain
+                         NYSE calendar — no off-chain feed)
 STRAND                   protocol token, staked into per-pool vaults
 ```
 
 Every external entry point has NatSpec and a test file in `test/integration/` (round-trip behavior against a real v4 PoolManager) or `test/unit/` (math primitives).
+
+## Docs
+
+- [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) — canonical specification (v0.17)
+- [`docs/strand.md`](./docs/strand.md) — STRAND tokenomics, mainnet contract requirements, presale design
+- [`docs/oracles.md`](./docs/oracles.md) — oracle stack reference (Chainlink, dual-oracle, NYSE hours)
+- [`TODO.md`](./TODO.md) — phased build plan
+- [`SECURITY.md`](./SECURITY.md) — disclosure policy
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — dev setup + style
 
 ## For partners
 

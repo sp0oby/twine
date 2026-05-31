@@ -19,5 +19,6 @@
   "drawdownBps": 2000,
   "vaultFeeBps": 2000,
   "buybackBps": 1000,
-  "swapRouter": "0x9cc4e54D45b0AbC3A5Df1eef7704EeAb149dE3A3"
+  "swapRouter": "0x9cc4e54D45b0AbC3A5Df1eef7704EeAb149dE3A3",
+  "strandFaucet": "0xc827ecC5b9056F21bD371bA34c462fB8FA304Dd5"
 }

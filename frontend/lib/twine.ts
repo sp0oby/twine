@@ -16,6 +16,10 @@ export type TwineDeployment = {
   marketHours: `0x${string}`;
   // Optional: populated by `script/DeployRouter.s.sol` after the main protocol deploy.
   swapRouter?: `0x${string}`;
+  // Optional: testnet-only STRAND faucet (TestnetStrandFaucet). Populated by
+  // `script/DeployStrandFaucet.s.sol`. Frontend's MintFaucet uses this for STRAND drops
+  // because STRAND.mint is `onlyOwner` (owner = multisig) post-launch.
+  strandFaucet?: `0x${string}`;
   poolId: `0x${string}`;
   tickSpacing: number;
   baseFeeBps: number;

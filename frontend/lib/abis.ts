@@ -304,6 +304,38 @@ export const mockErc20Abi = [
   },
 ] as const;
 
+/** Testnet-only STRAND faucet — public claim() with cooldown. */
+export const strandFaucetAbi = [
+  {
+    type: "function",
+    name: "claim",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "nextClaimAt",
+    stateMutability: "view",
+    inputs: [{name: "user", type: "address"}],
+    outputs: [{name: "", type: "uint256"}],
+  },
+  {
+    type: "function",
+    name: "remaining",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{name: "", type: "uint256"}],
+  },
+  {
+    type: "function",
+    name: "DROP_AMOUNT",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{name: "", type: "uint256"}],
+  },
+] as const;
+
 export const oracleAbi = [
   {
     type: "function",
