@@ -114,6 +114,9 @@ contract DeployTestnet is Script {
 
         dep.pm = address(new TwinePositionManager(poolManager, deployer));
         dep.governor = address(new TwineGovernor(dep.hook, deployer));
+        // Wire the PM into the hook BEFORE handing the governor role over — once setGovernor
+        // runs, only the TwineGovernor contract can call setPositionManager.
+        TwineHook(dep.hook).setPositionManager(dep.pm);
         TwineHook(dep.hook).setGovernor(dep.governor);
     }
 

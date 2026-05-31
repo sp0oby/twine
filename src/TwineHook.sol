@@ -20,6 +20,13 @@ import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 import {IMarketHoursOracle} from "./interfaces/IMarketHoursOracle.sol";
 import {IUnderwritingVault} from "./interfaces/IUnderwritingVault.sol";
 
+/// @dev Minimal interface the hook needs from {TwinePositionManager}. Declared inline (rather
+///      than imported from the PM module) so the hook doesn't pull in the PM's whole compilation
+///      unit — keeps the bytecode size in check.
+interface IPmRealizeSink {
+    function realizeFromHook(PoolKey calldata key) external;
+}
+
 /// @title TwineHook
 /// @notice Uniswap v4 hook that turns a full-range pool into a pair-trade vehicle by pegging the
 ///         pool's internal price to an oracle-derived fair price via an asymmetric, drift-scaled fee
@@ -70,6 +77,11 @@ contract TwineHook is BaseHook {
     /// @notice Governance address authorized to manage pools and pause. Updatable so control can be
     ///         handed from the v1 multisig/`TwineGovernor` to on-chain governance later (spec §7.4).
     address public governor;
+    /// @notice Position manager that owns the shared full-range LP position for every Twine pool
+    ///         this hook serves. When set, the hook pokes its `realizeFromHook` from `afterSwap`
+    ///         so vault rewards and buyback cuts route automatically on every trade — no keeper
+    ///         needed for the steady state. address(0) until governance wires it (`setPositionManager`).
+    address public positionManager;
     /// @notice Global emergency pause. When true, swaps and adds revert.
     bool public paused;
 
@@ -83,6 +95,7 @@ contract TwineHook is BaseHook {
     event PausedSet(bool paused);
     event VaultSet(PoolId indexed id, address vault, uint16 drawdownBps);
     event GovernorUpdated(address indexed oldGovernor, address indexed newGovernor);
+    event PositionManagerUpdated(address indexed oldPm, address indexed newPm);
 
     error NotGovernor();
     error Paused();
@@ -202,6 +215,17 @@ contract TwineHook is BaseHook {
         governor = newGovernor;
     }
 
+    /// @notice Point the hook at its {TwinePositionManager}. Once set, every swap's `afterSwap`
+    ///         pokes the PM to realize and route accrued fees automatically.
+    /// @dev Passing `address(0)` disables auto-realization without removing pools — useful for
+    ///      pausing the side effect during a PM upgrade. The PM gate-checks `msg.sender == hook`
+    ///      via the pool key, so misconfigured pools can't have their fees siphoned by a wrong
+    ///      hook address.
+    function setPositionManager(address newPm) external onlyGovernor {
+        emit PositionManagerUpdated(positionManager, newPm);
+        positionManager = newPm;
+    }
+
     /// @notice Wire (or update) a pool's underwriting vault and the fraction of it seized on a break.
     /// @param vault The per-pool vault (address(0) disables drawdown wiring).
     /// @param drawdownBps Fraction of the vault to seize on a structural break (<= 10_000).
@@ -288,7 +312,10 @@ contract TwineHook is BaseHook {
         return (IHooks.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, overrideFee);
     }
 
-    /// @dev Detect structural break from the post-swap price; skip while market closed.
+    /// @dev Detect structural break from the post-swap price; skip while market closed. Then
+    ///      poke the position manager so accrued fees are realized and routed automatically —
+    ///      no off-chain keeper needed for steady-state operation. Skipped when the PM isn't
+    ///      wired yet, when no LPs exist in the pool, or when the pool isn't configured.
     function _afterSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata, BalanceDelta, bytes calldata)
         internal
         override
@@ -303,6 +330,15 @@ contract TwineHook is BaseHook {
         if (asymmetricActive) {
             drift = _currentDrift(c, id);
             triggered = _flagBreakIfReached(c, id, drift);
+        }
+
+        // Auto-realize and route fees. We do this AFTER the break check so the structural-break
+        // event reflects the pre-routing drift (purer signal for indexers); the routing itself
+        // only depends on what's accrued in the v4 position, not on the break state. The PM
+        // early-returns when there are no LPs, so this is a cheap no-op on cold pools.
+        address pm = positionManager;
+        if (pm != address(0) && c.configured) {
+            IPmRealizeSink(pm).realizeFromHook(key);
         }
 
         emit SwapProcessed(id, drift, asymmetricActive, triggered);

@@ -60,4 +60,10 @@ contract TwineGovernor is Ownable {
     function setHookGovernor(address newGovernor) external onlyOwner {
         hook.setGovernor(newGovernor);
     }
+
+    /// @notice Repoint the hook's position manager (e.g. during a PM upgrade). Passing
+    ///         `address(0)` disables auto-realization in afterSwap without removing pools.
+    function setHookPositionManager(address newPm) external onlyOwner {
+        hook.setPositionManager(newPm);
+    }
 }

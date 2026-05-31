@@ -87,6 +87,7 @@ contract TwinePositionManager is ERC6909, IUnlockCallback, ReentrancyGuard {
 
     error NotPoolManager();
     error NotOwner();
+    error NotHook();
     error ZeroLiquidity();
     error TransfersDisabled();
     error InvalidFeeConfig();
@@ -208,6 +209,26 @@ contract TwinePositionManager is ERC6909, IUnlockCallback, ReentrancyGuard {
         poolManager.unlock(abi.encode(CallbackData(Action.MINT, key, 0, msg.sender, to))); // poke only (liquidity 0)
         (amount0, amount1) = _harvestTo(msg.sender, to, key, id);
         _checkpoint(msg.sender, id);
+    }
+
+    /// @notice Hook-only entry point: realize accrued pool fees and route them, *without*
+    ///         opening a new {PoolManager.unlock}. Safe to call from inside the pool hook's
+    ///         {beforeSwap}/{afterSwap} because the swap caller's unlock is still active.
+    /// @dev Caller is gated by `msg.sender == key.hooks` — the hook address is encoded into the
+    ///      pool key, so a malicious caller can't impersonate another pool's hook by passing
+    ///      forged data. Side effects are identical to a `collectFees(key, *)` poke:
+    ///      modifyLiquidity(0) pulls accrued fees out, they get split per the FeeConfig (vault
+    ///      cut deposited as rewards, buyback cut transferred to sink), LP remainder folds into
+    ///      the per-share accumulator. Idempotent: when there are no pending fees this is a
+    ///      cheap modifyLiquidity(0) round-trip with no transfers.
+    ///
+    ///      This is what makes fee realization automatic in production — without it Twine
+    ///      depends on an off-chain keeper or an LP touch to make `FeesRouted` fire.
+    function realizeFromHook(PoolKey calldata key) external {
+        if (msg.sender != address(key.hooks)) revert NotHook();
+        uint256 id = _id(key);
+        (int24 tickLower, int24 tickUpper) = _fullRange(key.tickSpacing);
+        _realizeFees(key, id, tickLower, tickUpper);
     }
 
     // --------------------------------------------------------------------

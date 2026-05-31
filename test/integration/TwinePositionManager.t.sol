@@ -244,6 +244,53 @@ contract TwinePositionManagerTest is Deployers {
         assertApproxEqAbs(vaultGot, buybackGot * 2, 2); // 20% == 2 x 10%
     }
 
+    /// @notice With the PM wired into the hook, every swap routes accrued fees automatically —
+    ///         no LP touch (mint/burn/collectFees) required. This is the production fix for the
+    ///         "vault rewards stay at zero between LP interactions" problem.
+    function test_feeRouting_autoRealizesFromAfterSwap() public {
+        TwineUnderwritingVault vault = _vaultWithStaker();
+        address buyback = makeAddr("buyback");
+        pm.setFeeConfig(poolKey, address(vault), 2000, buyback, 1000);
+
+        // Wire the PM into the hook — this is what enables auto-realization.
+        hook.setPositionManager(address(pm));
+
+        // Seed liquidity, then do swaps. No collectFees / burn afterwards.
+        vm.prank(alice);
+        pm.mint(poolKey, 100e18, 100e18, alice);
+        uint256 vaultBefore = _bal(currency0, address(vault));
+        uint256 buybackBefore = _bal(currency0, buyback);
+
+        swap(poolKey, true, -1e18, ZERO_BYTES);
+        swap(poolKey, false, -1e18, ZERO_BYTES);
+
+        // No LP touch happened after the swaps — yet vault and buyback already received their cuts.
+        assertGt(_bal(currency0, address(vault)) - vaultBefore, 0, "vault auto-credited from afterSwap");
+        assertGt(_bal(currency0, buyback) - buybackBefore, 0, "buyback auto-credited from afterSwap");
+    }
+
+    /// @notice With the PM unset on the hook, afterSwap is a no-op for fee realization — fees
+    ///         remain unrealized until an LP touches the PM. Confirms the gating is honored.
+    function test_feeRouting_skipsAutoRealizeWhenPmUnset() public {
+        TwineUnderwritingVault vault = _vaultWithStaker();
+        address buyback = makeAddr("buyback");
+        pm.setFeeConfig(poolKey, address(vault), 2000, buyback, 1000);
+        // Deliberately do NOT call hook.setPositionManager — auto-realize stays disabled.
+
+        vm.prank(alice);
+        pm.mint(poolKey, 100e18, 100e18, alice);
+        uint256 vaultBefore = _bal(currency0, address(vault));
+
+        swap(poolKey, true, -1e18, ZERO_BYTES);
+
+        assertEq(_bal(currency0, address(vault)), vaultBefore, "vault stays empty until LP touch");
+    }
+
+    function testRevert_realizeFromHook_notHook() public {
+        vm.expectRevert(TwinePositionManager.NotHook.selector);
+        pm.realizeFromHook(poolKey);
+    }
+
     /// @notice With a vault configured but no stakers, its cut folds back to LPs (no stranded fees).
     function test_feeRouting_vaultCutFoldsBackWhenNoStakers() public {
         STRAND strand = new STRAND(address(this));
