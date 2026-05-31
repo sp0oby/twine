@@ -10,7 +10,6 @@ import {SwapPanel} from "@/components/panels/SwapPanel";
 import {LiquidityPanel} from "@/components/panels/LiquidityPanel";
 import {VaultPanel} from "@/components/panels/VaultPanel";
 import {MarketStatusBanner} from "@/components/MarketStatusBanner";
-import {MarketHoursAdmin} from "@/components/MarketHoursAdmin";
 import {DisclosureModal} from "@/components/DisclosureModal";
 import {RecentSwapsPanel} from "@/components/RecentSwapsPanel";
 import {ZScoreChart} from "@/components/ZScoreChart";
@@ -32,8 +31,6 @@ export default function AppPage() {
         <MarketStatusBanner />
 
         <PoolCard />
-
-        <MarketHoursAdmin />
 
         <MintFaucet />
 

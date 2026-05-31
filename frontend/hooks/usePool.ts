@@ -29,7 +29,6 @@ export function usePoolReads() {
           {address: deployment.oracle0, abi: oracleAbi, functionName: "getPrice"},
           {address: deployment.oracle1, abi: oracleAbi, functionName: "getPrice"},
           {address: deployment.marketHours, abi: marketHoursAbi, functionName: "isMarketOpen"},
-          {address: deployment.marketHours, abi: marketHoursAbi, functionName: "lastUpdate"},
         ]
       : [],
     query: {enabled: !!deployment, refetchInterval: 12_000},
@@ -37,7 +36,7 @@ export function usePoolReads() {
 
   if (!deployment) return {deployment: null} as const;
 
-  const [drift, config, totalShares, vaultStaked, vaultShares, p0, p1, marketOpen, marketLast] = (reads.data ?? []) as Array<{
+  const [drift, config, totalShares, vaultStaked, vaultShares, p0, p1, marketOpen] = (reads.data ?? []) as Array<{
     result?: any;
     error?: Error;
   }>;
@@ -68,8 +67,6 @@ export function usePoolReads() {
     fairPriceWad,
     /** `true` when the equity-hours oracle reports the underlying market is open. */
     marketOpen: marketOpen?.result as boolean | undefined,
-    /** Unix-seconds timestamp of the last `setOpen` write — surface staleness on testnet. */
-    marketHoursLastUpdate: marketLast?.result as bigint | undefined,
     refetch: reads.refetch,
   } as const;
 }

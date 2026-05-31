@@ -75,7 +75,7 @@ The flagship MSTRX/cbBTC pool is live against mocked equity feeds. Every address
 | STRAND | [`0x4CAD…20e3`](https://sepolia.basescan.org/address/0x4CAD1C5cFA9C20F3cfcC2C8881b4a9fdd63D20e3) |
 | Mock MSTRX (token0) | [`0xA6b3…737e`](https://sepolia.basescan.org/address/0xA6b3748023540af1aD4C4731E8B8A09fACFf737e) |
 | Mock cbBTC (token1) | [`0xc622…0ff2`](https://sepolia.basescan.org/address/0xc6224Cd78116CCcF9392F0035AFAf18fFE980ff2) |
-| MultisigMarketHours | [`0xBf57…C2b3`](https://sepolia.basescan.org/address/0xBf57Ff24C7398029620948Db7F0795C63B31C2b3) |
+| NyseHoursOracle | [`0x5F5c…124C`](https://sepolia.basescan.org/address/0x5F5cb96d5A2D5d23531209CE2261707E917B124C) |
 
 The canonical machine-readable copy lives in [`frontend/lib/deployments/base-sepolia.json`](./frontend/lib/deployments/base-sepolia.json) and is surfaced live by the dashboard's Deployment panel.
 
