@@ -9,7 +9,7 @@
 
 Twine is a Uniswap v4 hook that turns a pool into a continuously-rebalancing pair-trade vehicle. The pool looks like an ordinary v4 pool from the outside. You swap, add liquidity, collect fees. The hook quietly enforces a peg between the pool's internal price and an oracle-derived fair price, which makes the pool a venue for trading the *relationship* between two related assets rather than just one against the other.
 
-The launch pair is **MSTRX / cbBTC** — tokenized Strategy stock and tokenized Bitcoin on Base. Strategy holds roughly 600,000 BTC on its balance sheet, so MSTR is in economic substance levered Bitcoin plus a financing premium and an operating-business overlay. The premium drifts. Twine is where you trade the drift.
+The launch pair is **MSTRX / cbBTC** - tokenized Strategy stock and tokenized Bitcoin on Base. Strategy holds roughly 600,000 BTC on its balance sheet, so MSTR is in economic substance levered Bitcoin plus a financing premium and an operating-business overlay. The premium drifts. Twine is where you trade the drift.
 
 ## The trade
 
@@ -41,7 +41,7 @@ The vault doesn't make breaks impossible. It makes them survivable.
 
 ## Market hours
 
-MSTRX has a real underlying — a US-listed equity. NYSE closes nights and weekends, the equity oracle stops updating, and the pool can't honestly promise convergence during that window. Pretending otherwise is the kind of detail that turns a clean DeFi primitive into a regulatory mess.
+MSTRX has a real underlying - a US-listed equity. NYSE closes nights and weekends, the equity oracle stops updating, and the pool can't honestly promise convergence during that window. Pretending otherwise is the kind of detail that turns a clean DeFi primitive into a regulatory mess.
 
 The hook handles this directly. An on-chain market-hours oracle (a signed multisig oracle for v1, a Chainlink CCIP feed planned for v2) reports whether NYSE is open. When it's closed, the hook drops the asymmetric mechanic and reverts to flat, symmetric fees in both directions. The pool stays tradable. It just doesn't claim to mean-revert until the equity feed resumes.
 
@@ -49,7 +49,7 @@ If you integrate tokenized real-world assets into an AMM, this is the detail tha
 
 ## Where the protocol is
 
-Pre-launch on testnet. The full system — hook, position manager, governor, underwriting vault, STRAND, oracle adapters, market-hours registry, swap router — is built, broadcast on Base Sepolia, and wired to a working dashboard. No mainnet deployment yet. No audit yet.
+Pre-launch on testnet. The full system - hook, position manager, governor, underwriting vault, STRAND, oracle adapters, market-hours registry, swap router - is built, broadcast on Base Sepolia, and wired to a working dashboard. No mainnet deployment yet. No audit yet.
 
 | | |
 |---|---|
@@ -90,7 +90,7 @@ TwineUnderwritingVault   per-pool STRAND vault, drawdown bound to the hook
 TwineGovernor            pool authorization, parameter updates, fee config
 TwineSwapRouter          minimal IUnlockCallback wrapper for EOA swaps with slippage
 oracle/                  Chainlink adapter, dual-oracle adapter, NyseHoursOracle (on-chain
-                         NYSE calendar — no off-chain feed)
+                         NYSE calendar - no off-chain feed)
 STRAND                   protocol token, staked into per-pool vaults
 ```
 
@@ -98,18 +98,18 @@ Every external entry point has NatSpec and a test file in `test/integration/` (r
 
 ## Docs
 
-- [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) — canonical specification (v0.17)
-- [`docs/strand.md`](./docs/strand.md) — STRAND tokenomics, mainnet contract requirements, presale design
-- [`docs/oracles.md`](./docs/oracles.md) — oracle stack reference (Chainlink, dual-oracle, NYSE hours)
-- [`TODO.md`](./TODO.md) — phased build plan
-- [`SECURITY.md`](./SECURITY.md) — disclosure policy
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — dev setup + style
+- [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) - canonical specification (v0.17)
+- [`docs/strand.md`](./docs/strand.md) - STRAND tokenomics, mainnet contract requirements, presale design
+- [`docs/oracles.md`](./docs/oracles.md) - oracle stack reference (Chainlink, dual-oracle, NYSE hours)
+- [`TODO.md`](./TODO.md) - phased build plan
+- [`SECURITY.md`](./SECURITY.md) - disclosure policy
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) - dev setup + style
 
 ## For partners
 
-Twine is a focused piece of infrastructure: a hook, a vault, a router, a token. It does one thing — make on-chain a pair-trade market that doesn't otherwise exist — and we want production-grade rails underneath it. A few specific asks, in order of how much they'd move things forward:
+Twine is a focused piece of infrastructure: a hook, a vault, a router, a token. It does one thing - make on-chain a pair-trade market that doesn't otherwise exist - and we want production-grade rails underneath it. A few specific asks, in order of how much they'd move things forward:
 
-- **Tokenized-equity issuers (Backed, Ondo, Dinari).** v1 needs a production-grade MSTRX with predictable mint/burn semantics. v2 expands to COINx, MARAx, GLXYx, HOODx, CRCLx. The hook is wrapper-agnostic by design — it sees an ERC-20 with an oracle — and we'd like to coordinate on integration, redemption mechanics, and co-marketing where it makes sense. Twine never issues its own equity; we route flow to yours.
+- **Tokenized-equity issuers (Backed, Ondo, Dinari).** v1 needs a production-grade MSTRX with predictable mint/burn semantics. v2 expands to COINx, MARAx, GLXYx, HOODx, CRCLx. The hook is wrapper-agnostic by design - it sees an ERC-20 with an oracle - and we'd like to coordinate on integration, redemption mechanics, and co-marketing where it makes sense. Twine never issues its own equity; we route flow to yours.
 - **Oracle providers (Chainlink, Pyth, RedStone).** v1 already ships a `ChainlinkOracleAdapter` and a `DualOracleAdapter` with deviation caps and silent failover. The hard problem is an **equity-hours-aware feed** that behaves correctly on weekends, holidays, and trading halts. If you have or are building this primitive, we want to be a launch integration.
 - **Auditors.** The on-chain surface is small for a v4-hook audit: seven contracts, ~1,500 lines of Solidity, 181 tests including a 100k-call invariant suite. The asymmetric-fee math (`SpreadMath.sol`), the structural-break logic, and the vault drawdown path are where we want a Tier-1 set of eyes before mainnet.
 - **Liquidity bootstrap partners and market makers.** Pair-trade markets only work when both legs are deep enough that the corrective discount actually pulls flow in. If you backstop mean-reversion strategies or run inventory on tokenized equities, the asymmetric-fee mechanic should look familiar.

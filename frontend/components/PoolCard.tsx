@@ -14,12 +14,12 @@ export function PoolCard() {
     <div className="mt-10 border border-line">
       {broken ? (
         <div className="px-6 py-2 border-b border-line bg-white/[0.03] font-mono text-[11px] uppercase tracking-[0.22em] text-amber-200/90">
-          Structural break — fees are flat
+          Structural break - fees are flat
         </div>
       ) : null}
       <dl className="grid grid-cols-3 divide-x divide-line text-[13px]">
         <StatCell label="Fair price" value={fmtAmount(fairPriceWad)} />
-        <StatCell label="Drift (bps)" value={drift !== undefined ? signedBps(drift) : "—"} />
+        <StatCell label="Drift (bps)" value={drift !== undefined ? signedBps(drift) : "-"} />
         <StatCell label="LP shares" value={fmtAmount(totalShares)} />
       </dl>
       <DriftBand
@@ -30,12 +30,12 @@ export function PoolCard() {
       />
       <dl className="grid grid-cols-3 divide-x divide-line text-[13px] border-t border-line">
         <StatCell label="Vault stake" value={fmtAmount(vaultStaked)} />
-        <StatCell label="State" value={config ? (config.structuralBreak ? "broken" : "ok") : "—"} />
+        <StatCell label="State" value={config ? (config.structuralBreak ? "broken" : "ok") : "-"} />
         <StatCell
           label="Recent fees"
           value={
             fee0 === undefined || fee1 === undefined
-              ? "—"
+              ? "-"
               : `${fmtAmount(fee0, 18, 2)} / ${fmtAmount(fee1, 18, 2)}`
           }
           hint="routed, last ~14h"

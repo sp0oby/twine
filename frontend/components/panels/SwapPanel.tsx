@@ -29,7 +29,7 @@ export function SwapPanel() {
 
   const [zeroForOne, setZeroForOne] = useState(true);
   const [amountIn, setAmountIn] = useState("");
-  // 1.0% default — low pool liquidity on testnet means a typical swap moves price meaningfully
+  // 1.0% default - low pool liquidity on testnet means a typical swap moves price meaningfully
   // even before the asymmetric fee. The simulate-quote below makes this much less brittle, but
   // the default still needs to absorb the buffer between simulation and signing.
   const [slippage, setSlippage] = useState("1.0");
@@ -103,7 +103,7 @@ function Live({
   const approveWait = useWaitForTransactionReceipt({hash: approveTx});
   const swapWait = useWaitForTransactionReceipt({hash: swapTx});
 
-  // Optimistic allowance shadow — same fix as LiquidityPanel/VaultPanel. Without this the
+  // Optimistic allowance shadow - same fix as LiquidityPanel/VaultPanel. Without this the
   // on-chain allowance read lags the receipt and the button gets stuck on "Approve".
   // Keyed by tokenIn so flipping direction resets it.
   const [optAllow, setOptAllow] = useState<{token: `0x${string}` | undefined; amount: bigint}>({
@@ -129,7 +129,7 @@ function Live({
   const slippageBps = parseSlippageBps(slippage);
   const busy = approving || swapping || approveWait.isLoading || swapWait.isLoading;
 
-  // Real on-chain quote — only runs once allowance is sufficient (otherwise the simulation
+  // Real on-chain quote - only runs once allowance is sufficient (otherwise the simulation
   // reverts on transferFrom). When it succeeds, we know the exact amountOut the swap would
   // settle at, so the minOut calc below is meaningful instead of a bps-against-input guess.
   const {quote, error: quoteError, loading: quoting} = useSwapQuote({
@@ -149,7 +149,7 @@ function Live({
     (needsApproval || quote !== undefined);
 
   // corrective when the swap pushes the pool toward fair price
-  let direction = "—";
+  let direction = "-";
   if (drift !== undefined) {
     if (drift === 0n) direction = "in band";
     else if ((drift > 0n && zeroForOne) || (drift < 0n && !zeroForOne)) direction = "corrective";
@@ -229,9 +229,9 @@ function Live({
 
       <StatRow
         stats={[
-          {label: "Pool drift (bps)", value: drift !== undefined ? signedBps(drift) : "—"},
+          {label: "Pool drift (bps)", value: drift !== undefined ? signedBps(drift) : "-"},
           {label: "Direction", value: direction},
-          {label: "Slippage", value: slippageBps !== undefined ? `${(Number(slippageBps) / 100).toFixed(2)}%` : "—"},
+          {label: "Slippage", value: slippageBps !== undefined ? `${(Number(slippageBps) / 100).toFixed(2)}%` : "-"},
         ]}
       />
 
@@ -265,7 +265,7 @@ function Live({
 
       <PanelFootnote>
         Swap routes through {`{TwineSwapRouter}`}. The Twine hook decides the asymmetric fee in
-        beforeSwap — corrective swaps are discounted, adversarial swaps are surcharged.
+        beforeSwap - corrective swaps are discounted, adversarial swaps are surcharged.
       </PanelFootnote>
     </div>
   );
@@ -281,7 +281,7 @@ function parseAmount(v: string, decimals: number): bigint | undefined {
 }
 
 function formatQuote(wei: bigint): string {
-  // Display ~6 significant decimals — keep tight enough to read, sparse enough to fit the panel.
+  // Display ~6 significant decimals - keep tight enough to read, sparse enough to fit the panel.
   const whole = wei / 10n ** 18n;
   const frac = wei % 10n ** 18n;
   const fracStr = frac.toString().padStart(18, "0").slice(0, 6).replace(/0+$/, "");

@@ -75,7 +75,7 @@ function StakeMode({
   const approveWait = useWaitForTransactionReceipt({hash: approveTx});
   const stakeWait = useWaitForTransactionReceipt({hash: stakeTx});
 
-  // Optimistic allowance shadow — see LiquidityPanel for the same fix. The on-chain allowance
+  // Optimistic allowance shadow - see LiquidityPanel for the same fix. The on-chain allowance
   // read lags the approve receipt by a few seconds, which used to leave the button stuck on
   // "Approve STRAND" and force users to re-sign.
   const [optAllow, setOptAllow] = useState<bigint>(0n);
@@ -177,7 +177,7 @@ function UnstakeMode({
           </div>
           <div className="mt-1 font-mono text-[15px] text-white">{fmtAmount(pending[0])} shares</div>
           <div className="mt-2 font-mono text-[12px] text-muted">
-            {cooldownActive ? `Ready in ${Math.max(0, releaseAt - now)}s` : "Cooldown elapsed — ready to withdraw"}
+            {cooldownActive ? `Ready in ${Math.max(0, releaseAt - now)}s` : "Cooldown elapsed - ready to withdraw"}
           </div>
         </div>
       ) : (
@@ -194,7 +194,7 @@ function UnstakeMode({
         stats={[
           {label: "Your stake", value: fmtAmount(user.vaultStake)},
           {label: "Cooldown", value: "7 days"},
-          {label: "Ready at", value: hasPending ? new Date(releaseAt * 1000).toLocaleString() : "—"},
+          {label: "Ready at", value: hasPending ? new Date(releaseAt * 1000).toLocaleString() : "-"},
         ]}
       />
       {hasPending ? (
@@ -316,7 +316,7 @@ function parseAmount(v: string, decimals: number): bigint | undefined {
 }
 
 function fmtRewardPair(p: readonly [bigint, bigint] | undefined): string {
-  if (!p) return "—";
+  if (!p) return "-";
   return `${fmtAmount(p[0], 18, 2)} / ${fmtAmount(p[1], 18, 2)}`;
 }
 

@@ -1,4 +1,4 @@
-/** v4 LPFeeLibrary.DYNAMIC_FEE_FLAG = 0x800000 — the fee value a dynamic-fee pool is initialized with. */
+/** v4 LPFeeLibrary.DYNAMIC_FEE_FLAG = 0x800000 - the fee value a dynamic-fee pool is initialized with. */
 export const LPFeeLibraryDynamicFee = 0x800000;
 
 /** Power of 10. */

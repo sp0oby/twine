@@ -10,7 +10,7 @@ const ZERO_BYTES = "0x" as const;
 
 /**
  * Pre-flight quote for a swap via `TwineSwapRouter`. We `simulateContract` against the router
- * with `amountOutMinimum = 0` so the simulation never reverts on slippage — only on the actual
+ * with `amountOutMinimum = 0` so the simulation never reverts on slippage - only on the actual
  * preconditions (allowance, pool state, oracle staleness, etc). The returned `amountOut` is the
  * exact value the next real swap would settle, which we use to compute a correct min-out.
  *
@@ -38,7 +38,7 @@ export function useSwapQuote({
   const [loading, setLoading] = useState(false);
 
   // CRITICAL: poolKey is a fresh object literal on every parent render, so it can't go into
-  // the dep array directly — the effect would re-run on every render, perpetually clearing the
+  // the dep array directly - the effect would re-run on every render, perpetually clearing the
   // debounce timer before it ever fires (this caused the "stuck on quoting" symptom). We derive
   // a stable string id from its fields and depend on that instead.
   const poolKeyId = poolKey

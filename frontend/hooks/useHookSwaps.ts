@@ -10,7 +10,7 @@ import {getDeployment} from "@/lib/twine";
  * One `SwapProcessed` row, enriched with our derived corrective/adversarial classification.
  *
  * The hook emits POST-swap drift only, so the classification is derived from the *previous*
- * row's drift. The first row in the window is marked "—" because there's nothing to compare to.
+ * row's drift. The first row in the window is marked "-" because there's nothing to compare to.
  */
 export type SwapRow = {
   id: string; // tx-hash:logIndex
@@ -126,7 +126,7 @@ export function useHookSwaps({
               const block = await publicClient!.getBlock({blockNumber: row.blockNumber});
               row.timestamp = block.timestamp;
             } catch {
-              // Ignore — leave undefined and the panel will hide the relative time.
+              // Ignore - leave undefined and the panel will hide the relative time.
             }
           }),
         );

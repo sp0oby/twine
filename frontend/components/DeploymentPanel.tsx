@@ -7,7 +7,7 @@ import {explorerAddress} from "@/lib/wagmi";
 
 /**
  * Surfaces the active chain's deployed Twine contracts (or "no deployment found" honestly).
- * Reads from `frontend/lib/deployments/<chain>.json` — populated by `script/DeployTestnet.s.sol`.
+ * Reads from `frontend/lib/deployments/<chain>.json` - populated by `script/DeployTestnet.s.sol`.
  */
 export function DeploymentPanel() {
   const chainId = useChainId();
@@ -45,7 +45,7 @@ function AddrRow({chainId, label, addr}: {chainId: number; label: string; addr: 
     return (
       <>
         <dt className="text-muted">{label}</dt>
-        <dd className="text-muted">— not deployed —</dd>
+        <dd className="text-muted">- not deployed -</dd>
       </>
     );
   }

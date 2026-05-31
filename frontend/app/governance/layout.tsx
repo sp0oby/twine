@@ -1,7 +1,7 @@
 import type {Metadata} from "next";
 
 // Governance page is a client component (live multisig owner read), so we attach metadata
-// here via a wrapping layout — the only way the App Router exposes <title>/<meta> for a
+// here via a wrapping layout - the only way the App Router exposes <title>/<meta> for a
 // 'use client' route.
 export const metadata: Metadata = {
   title: "Governance",

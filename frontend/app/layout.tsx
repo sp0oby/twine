@@ -13,11 +13,11 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Twine — A market for the spread",
-    template: "%s — Twine",
+    default: "Twine - A market for the spread",
+    template: "%s - Twine",
   },
   description: DESCRIPTION,
-  // Deliberately short — five terms that actually describe the thing. Stuffing keyword lists
+  // Deliberately short - five terms that actually describe the thing. Stuffing keyword lists
   // makes Google rank you lower these days, not higher.
   keywords: ["Uniswap v4 hook", "pair trade", "tokenized equity", "Base", "MSTR cbBTC"],
   authors: [{name: "Brandon McCall"}],
@@ -27,12 +27,12 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: "Twine",
-    title: "Twine — A market for the spread",
+    title: "Twine - A market for the spread",
     description: DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Twine — A market for the spread",
+    title: "Twine - A market for the spread",
     description: DESCRIPTION,
   },
   robots: {

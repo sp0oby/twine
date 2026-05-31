@@ -15,7 +15,7 @@ export default function SplashPage() {
         <p className="mt-8 text-[17px] leading-relaxed text-ink/85">
           Twine is a Uniswap v4 hook that turns a pool into a continuously-rebalancing pair-trade
           vehicle between two fundamentally-linked assets. The flagship pair is{" "}
-          <span className="font-mono text-white">MSTRX/cbBTC</span> — Strategy's stock against
+          <span className="font-mono text-white">MSTRX/cbBTC</span> - Strategy's stock against
           Bitcoin.
         </p>
 
@@ -31,7 +31,7 @@ export default function SplashPage() {
           Strategy holds approximately 600,000 BTC on its balance sheet. The stock is, in economic
           substance, levered Bitcoin plus a financing premium and an operating-business overlay.
           When that premium drifts from its rolling norm, Twine is the market for trading the drift.
-          Historical MSTR/BTC spread is large enough — often 10%+ deviations from mean — to make
+          Historical MSTR/BTC spread is large enough - often 10%+ deviations from mean - to make
           pair-trade fees meaningful.
         </Section>
 

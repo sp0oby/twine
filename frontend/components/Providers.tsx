@@ -10,7 +10,7 @@ import {config} from "@/lib/wagmi";
 
 /**
  * Client-side providers: wagmi (chain + connectors), react-query (cache), RainbowKit (wallet UI).
- * Themed to match the splash — no shadow / no glow / no rounded corners, just contrast.
+ * Themed to match the splash - no shadow / no glow / no rounded corners, just contrast.
  */
 export function Providers({children}: {children: React.ReactNode}) {
   const [queryClient] = useState(() => new QueryClient());

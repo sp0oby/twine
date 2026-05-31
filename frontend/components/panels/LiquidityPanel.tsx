@@ -36,7 +36,7 @@ export function LiquidityPanel() {
       <ModeTabs mode={mode} setMode={setMode} />
       {mode === "deposit" ? (
         marketOpen === false ? (
-          // Hard-block deposits during close — spec §5.2, equity oracle is stale so the LP would
+          // Hard-block deposits during close - spec §5.2, equity oracle is stale so the LP would
           // be entering at a Friday-close anchor with no asymmetric-fee protection until reopen.
           // Withdrawals stay open via the other tab.
           <ClosedDeposits />
@@ -196,7 +196,7 @@ function DepositMode({
       <StatRow
         stats={[
           {label: "Your LP shares", value: fmtAmount(user.lpShares)},
-          {label: "Pool drift (bps)", value: drift !== undefined ? signedBps(drift) : "—"},
+          {label: "Pool drift (bps)", value: drift !== undefined ? signedBps(drift) : "-"},
           {label: "Total LP shares", value: fmtAmount(totalShares)},
         ]}
       />

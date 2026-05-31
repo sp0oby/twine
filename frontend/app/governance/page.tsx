@@ -24,7 +24,7 @@ export default function GovernancePage() {
         </h1>
         <p className="mt-8 text-[17px] leading-relaxed text-ink/85">
           Twine launches under a multisig. STRAND token voting goes live after the protocol has
-          earned the right to it — an external audit and a clean stretch on mainnet. The transition
+          earned the right to it - an external audit and a clean stretch on mainnet. The transition
           is built in from day one; no contract redeploy is required to hand control over.
         </p>
 
@@ -33,7 +33,7 @@ export default function GovernancePage() {
             A multisig controls the protocol's admin surface. The signers can authorize new pools,
             re-tune live pool parameters, pause the hook in an emergency, and resolve a structural
             break once the underlying market has reconverged. The multisig <em>cannot</em> seize
-            user funds, alter LP balances, or change vault staker positions — those rules are
+            user funds, alter LP balances, or change vault staker positions - those rules are
             enforced by the contracts themselves.
           </p>
           <Address label="Multisig" address={MULTISIG_ADDRESS} chainId={chainId} />
@@ -69,9 +69,9 @@ export default function GovernancePage() {
 
         <Section label="What can't change, ever">
           <ul className="space-y-2 text-[15px] text-ink/85 list-disc pl-5 marker:text-muted">
-            <li>Twine never custodies user assets — they live in Uniswap v4's PoolManager and the per-pool vault contract.</li>
+            <li>Twine never custodies user assets - they live in Uniswap v4's PoolManager and the per-pool vault contract.</li>
             <li>Governance cannot move LP positions or vault stakes between accounts.</li>
-            <li>Governance cannot mint MSTRX or any other tokenized equity — those are issued by their respective wrappers (Backed, Ondo, Dinari), not by Twine.</li>
+            <li>Governance cannot mint MSTRX or any other tokenized equity - those are issued by their respective wrappers (Backed, Ondo, Dinari), not by Twine.</li>
             <li>The asymmetric-fee mechanic and the structural-break drawdown rules are coded into the hook; the multisig can pause them, not rewrite them.</li>
           </ul>
         </Section>
@@ -112,7 +112,7 @@ function Address({
           <span className="text-white break-all">{address}</span>
         )
       ) : (
-        <span className="text-muted">—</span>
+        <span className="text-muted">-</span>
       )}
     </div>
   );

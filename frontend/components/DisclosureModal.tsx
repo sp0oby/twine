@@ -7,7 +7,7 @@ const STORAGE_KEY = "twine.disclosure.ack.v1";
 /**
  * First-visit dismissable modal explaining the tokenized-equity dependency.
  *
- * The Twine pool does no KYC — it's a smart contract — but MSTRX is a security under Backed's
+ * The Twine pool does no KYC - it's a smart contract - but MSTRX is a security under Backed's
  * wrapper structure and you must have already gone through Backed's KYC to hold it
  * (PROJECT_SPEC.md §2.4). The modal makes that inheritance explicit before users interact.
  *
@@ -60,7 +60,7 @@ export function DisclosureModal() {
             Finance. Anyone holding MSTRX has already completed Backed's KYC.
           </p>
           <p>
-            Twine itself does no KYC — it's a smart contract. But the pool inherits the wrapper's
+            Twine itself does no KYC - it's a smart contract. But the pool inherits the wrapper's
             gating: you can only acquire MSTRX through Backed's issuer flow. If you don't already
             hold MSTRX through Backed, you cannot meaningfully interact with this pool.
           </p>

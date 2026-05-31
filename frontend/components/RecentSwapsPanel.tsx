@@ -9,7 +9,7 @@ import {explorerTx} from "@/lib/wagmi";
  * Recent swaps for the active pool, classified corrective / adversarial / neutral.
  *
  * Classification is derived from the change in |drift| between consecutive emitted
- * SwapProcessed events — the hook itself emits POST-swap drift only, so the first row
+ * SwapProcessed events - the hook itself emits POST-swap drift only, so the first row
  * in the window is intentionally unlabelled.
  */
 export function RecentSwapsPanel() {
@@ -33,7 +33,7 @@ export function RecentSwapsPanel() {
       ) : error ? (
         <RpcErrorHint message={error.message} />
       ) : !newest ? (
-        <p className="mt-4 font-mono text-[12px] text-muted">{loading ? "Loading swap history…" : "—"}</p>
+        <p className="mt-4 font-mono text-[12px] text-muted">{loading ? "Loading swap history…" : "-"}</p>
       ) : newest.length === 0 ? (
         <p className="mt-4 font-mono text-[12px] text-muted">
           No swaps in the recent scan window. Be the first to swap from the Trade tab.
@@ -109,7 +109,7 @@ function Tag({
           <span className="text-muted">neutral</span>
         </>
       ) : (
-        <span className="text-muted">—</span>
+        <span className="text-muted">-</span>
       )}
       <span className={`ml-2 rounded-sm border px-1.5 py-0.5 ${
         asym ? "border-line text-muted" : "border-line/60 text-muted/70"
@@ -145,7 +145,7 @@ function RpcErrorHint({message}: {message: string}) {
 }
 
 function relative(ts: bigint | undefined): string {
-  if (ts === undefined) return "—";
+  if (ts === undefined) return "-";
   const now = Math.floor(Date.now() / 1000);
   const delta = now - Number(ts);
   if (delta < 60) return `${delta}s ago`;

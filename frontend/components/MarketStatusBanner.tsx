@@ -11,7 +11,7 @@ import {explorerAddress} from "@/lib/wagmi";
  * When the IMarketHoursOracle reports the underlying market is closed, the hook drops the
  * asymmetric-fee mechanic and reverts to flat fees across both directions (PROJECT_SPEC.md §6.2).
  * The deployed oracle is `NyseHoursOracle`, which computes open/closed directly on-chain from
- * the NYSE calendar — no off-chain feed, no keeper.
+ * the NYSE calendar - no off-chain feed, no keeper.
  */
 export function MarketStatusBanner() {
   const {marketOpen, deployment} = usePoolReads();
@@ -51,7 +51,7 @@ export function MarketStatusBanner() {
       </div>
       <p className="mt-2.5 text-[12px] leading-relaxed text-amber-50/80">
         MSTRX tracks a US-listed equity. While the underlying market is closed the hook drops the
-        asymmetric mechanic — swaps still settle, but the pool does not promise to mean-revert
+        asymmetric mechanic - swaps still settle, but the pool does not promise to mean-revert
         until markets reopen. LPs bear gap risk over the close.
       </p>
       <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-amber-50/60">

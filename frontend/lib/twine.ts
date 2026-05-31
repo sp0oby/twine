@@ -40,12 +40,12 @@ export const deployments: Record<number, TwineDeployment> = {
 export function getDeployment(chainId: number | undefined): TwineDeployment | null {
   if (!chainId) return null;
   const d = deployments[chainId];
-  // Treat an all-zero hook as "not yet deployed" — the frontend should render the pre-launch UI.
+  // Treat an all-zero hook as "not yet deployed" - the frontend should render the pre-launch UI.
   if (!d || d.hook === ZERO) return null;
   return d;
 }
 
 export function shortAddr(addr: string): string {
-  if (!addr || addr.length < 10) return addr ?? "—";
+  if (!addr || addr.length < 10) return addr ?? "-";
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }

@@ -5,7 +5,7 @@ import {useAccount, useChainId} from "wagmi";
 import {chainNameById} from "@/lib/wagmi";
 
 /**
- * Honest, minimal connection state for the dashboard. Shows nothing fake — if no wallet is
+ * Honest, minimal connection state for the dashboard. Shows nothing fake - if no wallet is
  * connected the panel just says so and points at the header.
  */
 export function WalletStatus() {

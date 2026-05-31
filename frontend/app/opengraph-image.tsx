@@ -7,7 +7,7 @@ export const contentType = "image/png";
 
 /**
  * Twine OG image. Black canvas, the logo on the left, the wordmark on the right, the URL in
- * tiny mono at the bottom. No marketing copy — the link preview should feel like a name plate.
+ * tiny mono at the bottom. No marketing copy - the link preview should feel like a name plate.
  *
  * Satori (Next.js OG runtime) doesn't have access to our Tailwind/Inter setup, so we draw the
  * logo as inline SVG and use the system mono fallback with wide letterspacing for the wordmark.

@@ -10,10 +10,10 @@ import {getDeployment} from "@/lib/twine";
  * Reads `FeesRouted` events emitted by `TwinePositionManager` and sums the routed amounts
  * (vault cut + buyback cut, both tokens) over the recent lookback window.
  *
- * The LP cut is NOT in the event — it stays in the PM and accrues to the per-share accumulator.
+ * The LP cut is NOT in the event - it stays in the PM and accrues to the per-share accumulator.
  * What we sum here is "fees that left the LP pool", which is the right proxy for showing pool
  * activity on the dashboard. With the testnet default split (vault 20% / buyback 10% / LP 70%),
- * the routed sum is roughly 30% of the gross fee — multiply by ~3.33 to estimate gross.
+ * the routed sum is roughly 30% of the gross fee - multiply by ~3.33 to estimate gross.
  */
 export function useRoutedFees({
   lookbackBlocks = 25_000n,

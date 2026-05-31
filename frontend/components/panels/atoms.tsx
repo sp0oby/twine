@@ -5,7 +5,7 @@ import {explorerTx} from "@/lib/wagmi";
 
 /**
  * Shared atoms for the trade / liquidity / vault panels. Mono labels, bordered boxes,
- * no rounded corners — same vocabulary as the splash so the app reads as one piece.
+ * no rounded corners - same vocabulary as the splash so the app reads as one piece.
  */
 
 export function Field({
@@ -44,7 +44,7 @@ export function Field({
             className="bg-transparent font-mono text-2xl text-white outline-none w-full placeholder:text-muted/60"
           />
         ) : (
-          <span className="font-mono text-2xl text-white">{value || "—"}</span>
+          <span className="font-mono text-2xl text-white">{value || "-"}</span>
         )}
         <span className="font-mono text-sm text-white shrink-0">{token}</span>
       </div>

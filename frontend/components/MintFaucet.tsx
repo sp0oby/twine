@@ -13,7 +13,7 @@ import {TxStatusInline} from "./panels/atoms";
 /**
  * Testnet faucet UI. Token0 / token1 are MockERC20 with an open `mint` selector. STRAND has a
  * gated `mint` (owner = multisig), so we route its drop through `TestnetStrandFaucet.claim()`
- * — a pre-funded faucet with a per-address cooldown.
+ * - a pre-funded faucet with a per-address cooldown.
  */
 export function MintFaucet() {
   const chainId = useChainId();
@@ -28,7 +28,7 @@ export function MintFaucet() {
       <h2 className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Test tokens</h2>
       <p className="mt-3 font-mono text-[13px] text-muted">
         Mock token0 / token1 mint freely. STRAND drops 1,000 per claim from a pre-funded faucet
-        with a 12h cooldown — production STRAND has a fixed cap and gated mint (see /docs).
+        with a 12h cooldown - production STRAND has a fixed cap and gated mint (see /docs).
       </p>
       <div className="mt-6 grid grid-cols-3 gap-4">
         <MintMock label="token0" token={deployment.token0} balance={user.bal0} address={address} />
@@ -97,7 +97,7 @@ function StrandClaim({
   const {writeContract, data: tx, isPending} = useWriteContract();
   const wait = useWaitForTransactionReceipt({hash: tx});
 
-  // Per-address cooldown — show "Ready in 4h 12m" when waiting.
+  // Per-address cooldown - show "Ready in 4h 12m" when waiting.
   const {data: nextAt, refetch} = useReadContract({
     address: faucet,
     abi: strandFaucetAbi,

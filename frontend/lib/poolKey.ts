@@ -1,7 +1,7 @@
 import {LPFeeLibraryDynamicFee} from "./constants";
 import type {TwineDeployment} from "./twine";
 
-/** v4 PoolKey struct — same shape the contracts expect. */
+/** v4 PoolKey struct - same shape the contracts expect. */
 export type PoolKey = {
   currency0: `0x${string}`;
   currency1: `0x${string}`;

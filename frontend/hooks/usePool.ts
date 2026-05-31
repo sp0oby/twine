@@ -8,7 +8,7 @@ import {poolKeyFor, type PoolKey} from "@/lib/poolKey";
 import {getDeployment} from "@/lib/twine";
 
 /**
- * Live pool-level reads from chain — drift, structural-break state, vault TVL, PM total shares,
+ * Live pool-level reads from chain - drift, structural-break state, vault TVL, PM total shares,
  * oracle fair price. Returns `null` (deployment) when no deployment exists for the active chain.
  */
 export function usePoolReads() {
@@ -113,7 +113,7 @@ export function useUserReads(account: `0x${string}` | undefined) {
   } as const;
 }
 
-/** Read a single ERC-20 allowance — used by the panels' approval flow. Polls every 4 s as a
+/** Read a single ERC-20 allowance - used by the panels' approval flow. Polls every 4 s as a
  *  belt-and-suspenders alongside the explicit refetch() on a confirmed approval receipt.
  */
 export function useAllowance(

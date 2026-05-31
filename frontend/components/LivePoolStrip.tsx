@@ -5,7 +5,7 @@ import {fmtAmount} from "@/lib/format";
 
 /**
  * Compact live read of the deployed pool, intended for the splash page.
- * Same data source as the dashboard's PoolCard — refreshes every 12 s.
+ * Same data source as the dashboard's PoolCard - refreshes every 12 s.
  */
 export function LivePoolStrip() {
   const {drift, fairPriceWad, vaultStaked, config, deployment} = usePoolReads();
@@ -21,9 +21,9 @@ export function LivePoolStrip() {
   return (
     <dl className="mt-5 grid grid-cols-2 sm:grid-cols-4 divide-x divide-line border border-line">
       <Cell label="Fair price" value={fmtAmount(fairPriceWad)} />
-      <Cell label="Drift (bps)" value={drift !== undefined ? signedBps(drift) : "—"} />
+      <Cell label="Drift (bps)" value={drift !== undefined ? signedBps(drift) : "-"} />
       <Cell label="Vault stake" value={fmtAmount(vaultStaked)} />
-      <Cell label="State" value={config ? (config.structuralBreak ? "broken" : "ok") : "—"} />
+      <Cell label="State" value={config ? (config.structuralBreak ? "broken" : "ok") : "-"} />
     </dl>
   );
 }

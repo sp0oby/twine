@@ -31,7 +31,7 @@ export function DriftBand({
   const markerLeft = ((clamped + extent) / (2 * extent)) * 100;
 
   const status = driftBps === undefined
-    ? "—"
+    ? "-"
     : broken
       ? "structural break"
       : Math.abs(d) <= tol
@@ -51,7 +51,7 @@ export function DriftBand({
         {/* extent track */}
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-line" />
 
-        {/* hard-threshold band — outside is "danger" / break-eligible */}
+        {/* hard-threshold band - outside is "danger" / break-eligible */}
         <div
           aria-hidden
           className="absolute top-1/2 -translate-y-1/2 h-3 border-y border-amber-300/30 bg-amber-300/[0.05]"
@@ -61,7 +61,7 @@ export function DriftBand({
           }}
         />
 
-        {/* tolerance band — inside is flat fee / "ok" */}
+        {/* tolerance band - inside is flat fee / "ok" */}
         <div
           aria-hidden
           className="absolute top-1/2 -translate-y-1/2 h-3 bg-emerald-300/15"

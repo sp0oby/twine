@@ -3,14 +3,14 @@ import {base, baseSepolia} from "wagmi/chains";
 import {getDefaultConfig} from "@rainbow-me/rainbowkit";
 
 /**
- * WalletConnect project id (from cloud.walletconnect.com). Optional — RainbowKit still works
+ * WalletConnect project id (from cloud.walletconnect.com). Optional - RainbowKit still works
  * with injected/browser wallets if this isn't set, just without WC modal support.
  */
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "twine-dev";
 
 /**
  * Optional dedicated RPCs. When unset we fall back to the public Base node, which is fine for
- * basic reads but rate-limits and clamps `eth_getLogs` ranges — set these from .env.local to use
+ * basic reads but rate-limits and clamps `eth_getLogs` ranges - set these from .env.local to use
  * Alchemy / QuickNode / Infura instead. Required for the ZScoreChart + RecentSwapsPanel to work
  * reliably (they scan ~150k blocks of SwapProcessed events).
  */

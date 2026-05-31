@@ -1,6 +1,6 @@
 /**
  * Minimal Twine ABIs as `as const` arrays so wagmi's type inference works end-to-end.
- * Only the functions the frontend uses — extend per feature as the dashboard grows.
+ * Only the functions the frontend uses - extend per feature as the dashboard grows.
  */
 
 export const hookAbi = [
@@ -304,7 +304,7 @@ export const mockErc20Abi = [
   },
 ] as const;
 
-/** Testnet-only STRAND faucet — public claim() with cooldown. */
+/** Testnet-only STRAND faucet - public claim() with cooldown. */
 export const strandFaucetAbi = [
   {
     type: "function",
@@ -363,7 +363,7 @@ export const marketHoursAbi = [
   },
 ] as const;
 
-/** Just the events the dashboard reads via `getLogs` — used by RecentSwapsPanel and ZScoreChart. */
+/** Just the events the dashboard reads via `getLogs` - used by RecentSwapsPanel and ZScoreChart. */
 export const hookEventsAbi = [
   {
     type: "event",
@@ -378,7 +378,7 @@ export const hookEventsAbi = [
   },
 ] as const;
 
-/** PM events the dashboard reads via getLogs — for the 24h fee tally on PoolCard. */
+/** PM events the dashboard reads via getLogs - for the 24h fee tally on PoolCard. */
 export const pmEventsAbi = [
   {
     type: "event",

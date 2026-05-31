@@ -54,7 +54,7 @@ export default function DocsPage() {
 
         <Section id="market-hours" label="Market hours">
           <p>
-            MSTRX has a real underlying — a US-listed equity. When NYSE is closed the equity
+            MSTRX has a real underlying - a US-listed equity. When NYSE is closed the equity
             oracle stops updating, so Twine cannot honestly price the leg and cannot promise
             the spread will converge. The hook reads NYSE hours directly on-chain (no off-chain
             feed; the calendar is hardcoded with DST and US market holidays through 2030, with
@@ -62,7 +62,7 @@ export default function DocsPage() {
           </p>
           <ul className="space-y-2 text-[14px] leading-relaxed text-ink/85 list-disc pl-5 marker:text-muted">
             <li><span className="text-white">Swaps stay open</span>, at a flat symmetric fee. The asymmetric mechanic is paused until reopen.</li>
-            <li><span className="text-white">Deposits are blocked.</span> Entering during close means committing capital at a price the protocol explicitly isn't policing — the in-band check would reference a 60-hour-old equity quote, and the asymmetric mechanic that's the whole reason to LP here is off. "Disclose and let them choose" isn't real protection, so the protocol refuses the deposit instead.</li>
+            <li><span className="text-white">Deposits are blocked.</span> Entering during close means committing capital at a price the protocol explicitly isn't policing - the in-band check would reference a 60-hour-old equity quote, and the asymmetric mechanic that's the whole reason to LP here is off. "Disclose and let them choose" isn't real protection, so the protocol refuses the deposit instead.</li>
             <li><span className="text-white">Withdrawals stay open</span>, the entire time. Existing LPs already committed with a defined risk profile; letting them out is "you can change your mind."</li>
             <li><span className="text-white">Structural-break detection is paused.</span> The hard-threshold drawdown only runs when prices are live.</li>
           </ul>
@@ -84,7 +84,7 @@ export default function DocsPage() {
         <Section label="Status">
           <pre className="font-mono text-[13px] leading-[1.8] text-ink/80 border-l border-line pl-5 whitespace-pre">
 {`Spec version       v0.17
-Build phase        Phases 0–10 complete  ·  live on Base Sepolia
+Build phase        Phases 0-10 complete  ·  live on Base Sepolia
 Contracts          Solidity 0.8.26  (BUSL hook / MIT elsewhere)
 Audit              pending
 Network            Base Sepolia testnet  (mocked equity leg)`}

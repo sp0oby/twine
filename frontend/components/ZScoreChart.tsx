@@ -6,7 +6,7 @@ import {useHookSwaps} from "@/hooks/useHookSwaps";
 
 /**
  * Rolling z-score of drift, computed in the browser from the same SwapProcessed log set the
- * recent-swaps panel uses. No indexer required — the spec calls this a v1 frontend feature and
+ * recent-swaps panel uses. No indexer required - the spec calls this a v1 frontend feature and
  * a back-of-envelope rolling window is plenty for the dashboard's "is this pool mean-reverting?"
  * question. When the Ponder indexer is up, this can be swapped for a GraphQL backend without
  * touching the chart.
@@ -26,7 +26,7 @@ export function ZScoreChart() {
         </h2>
         {series ? (
           <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-            {series.points.length} pts · last z={series.points.at(-1)?.z.toFixed(2) ?? "—"}
+            {series.points.length} pts · last z={series.points.at(-1)?.z.toFixed(2) ?? "-"}
           </span>
         ) : null}
       </div>
@@ -48,7 +48,7 @@ export function ZScoreChart() {
           </p>
         </div>
       ) : !rows ? (
-        <p className="mt-4 font-mono text-[12px] text-muted">{loading ? "Loading swap history…" : "—"}</p>
+        <p className="mt-4 font-mono text-[12px] text-muted">{loading ? "Loading swap history…" : "-"}</p>
       ) : series.points.length < 2 ? (
         <p className="mt-4 font-mono text-[12px] text-muted">
           Need at least {WINDOW + 1} swaps for a stable rolling z-score. Currently have{" "}
