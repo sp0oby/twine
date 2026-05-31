@@ -99,17 +99,26 @@ Pre-mainnet checklist for STRAND specifically:
 
 ---
 
-## Mainnet contract — what changes from v1
+## Mainnet contract — `src/STRANDMainnet.sol`
 
-The current `STRAND.sol` is close to production-ready, but three additions are worth considering before mainnet:
+The production-shape STRAND contract lives in the repo at [`src/STRANDMainnet.sol`](../src/STRANDMainnet.sol). It's not deployed anywhere — it's there so auditors and partners can review the actual mainnet contract, not just infer it from the simpler testnet one.
 
-1. **ERC-2612 (Permit).** Gasless approvals via signed messages. Standard for ERC-20s post-2021. Lets stakers / voters approve without burning gas on a separate `approve` tx. Drop-in via `ERC20Permit` from OpenZeppelin.
+It's the testnet `STRAND.sol` plus three additions every modern utility/governance token has:
 
-2. **ERC-20 Votes (for v2 governance).** Snapshot-based voting power, vote delegation, historical balance lookups. Required for any on-chain `Governor` integration. Drop-in via `ERC20Votes` from OpenZeppelin. Doesn't add user-visible behavior beyond `delegate(address)`.
+1. **ERC-2612 (Permit).** Gasless approvals via signed messages — a holder signs an EIP-712 message off-chain and someone else submits it on-chain. Standard since 2020. Removes the "two transactions to stake" UX wart.
 
-3. **Renounce-after-mint pattern.** After the initial distribution, the multisig calls `renounceOwnership()`. The cap is enforced inside `mint`, but renouncing forecloses any further minting permanently. This is the cleanest commitment to "100M and never more."
+2. **ERC-20 Votes.** Snapshot-based voting power, vote delegation, historical balance lookups (`getPastVotes`). This is the prerequisite for the §7.4 on-chain `Governor` — without it the v2 governor literally cannot count votes. Holders must `delegate(address)` (to themselves or someone else) before their balance counts as voting power; this is the standard `ERC20Votes` mental model that Tally and OZ Governor both expect.
 
-These three combined: still ~80 lines of Solidity. Audit cost is marginal vs auditing v1.
+3. **Renounce-after-mint pattern.** After the initial distribution mints (vesting buckets + airdrop + presale + MM allocation), the multisig calls `renounceOwnership()`. The cap is enforced inside `mint`, but renouncing makes future minting structurally impossible. Cleanest commitment to "100M and never more." The contract supports this via inherited OZ `Ownable.renounceOwnership` — no custom code.
+
+The contract is ~50 lines on top of OZ. Test coverage in [`test/unit/STRANDMainnet.t.sol`](../test/unit/STRANDMainnet.t.sol) hits:
+
+- Cap enforced; mint owner-only; burn anyone-can; renounce locks future minting
+- Permit signature → allowance + nonce increment
+- Voting power = 0 until delegated; self-delegate; delegate-to-another; transfer moves votes; historical past-block lookup
+- `CLOCK_MODE` returns `"mode=blocknumber&from=default"` (what Tally + OZ Governor expect verbatim)
+
+13 tests, all green. The mainnet deploy uses this contract; the testnet keeps `STRAND.sol` for iteration speed.
 
 ---
 
