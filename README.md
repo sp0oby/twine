@@ -1,7 +1,7 @@
 # Twine
 
 [![CI](https://github.com/sp0oby/twine/actions/workflows/ci.yml/badge.svg)](https://github.com/sp0oby/twine/actions/workflows/ci.yml)
-[![Spec](https://img.shields.io/badge/spec-v0.16-1f6feb?labelColor=0d1117)](./PROJECT_SPEC.md)
+[![Spec](https://img.shields.io/badge/spec-v0.17-1f6feb?labelColor=0d1117)](./PROJECT_SPEC.md)
 [![Solidity](https://img.shields.io/badge/solidity-0.8.26-363636?labelColor=0d1117)](./foundry.toml)
 [![License](https://img.shields.io/badge/license-BUSL--1.1%20%2F%20MIT-0aa?labelColor=0d1117)](#license)
 
@@ -53,7 +53,7 @@ Pre-launch on testnet. The full system — hook, position manager, governor, und
 
 | | |
 |---|---|
-| Spec | [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) v0.16 |
+| Spec | [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) v0.17 |
 | Source | Solidity 0.8.26, Foundry, BUSL-1.1 hook, MIT elsewhere |
 | Tests | 181 passing &middot; 100k invariant calls clean &middot; [CI](https://github.com/sp0oby/twine/actions/workflows/ci.yml) |
 | Testnet | Base Sepolia, chain id 84532 |

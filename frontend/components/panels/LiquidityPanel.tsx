@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {useEffect, useState} from "react";
 import {parseUnits} from "viem";
 import {useAccount, useChainId, useWaitForTransactionReceipt, useWriteContract} from "wagmi";
@@ -19,7 +20,7 @@ export function LiquidityPanel() {
   const deployment = getDeployment(chainId);
   const {address} = useAccount();
   const user = useUserReads(address);
-  const {drift, totalShares} = usePoolReads();
+  const {drift, totalShares, marketOpen} = usePoolReads();
 
   const [mode, setMode] = useState<Mode>("deposit");
   const [amount0, setAmount0] = useState("");
@@ -34,17 +35,24 @@ export function LiquidityPanel() {
     <div className="space-y-5">
       <ModeTabs mode={mode} setMode={setMode} />
       {mode === "deposit" ? (
-        <DepositMode
-          deployment={deployment}
-          address={address}
-          a0={amount0}
-          setA0={setAmount0}
-          a1={amount1}
-          setA1={setAmount1}
-          user={user}
-          drift={drift}
-          totalShares={totalShares}
-        />
+        marketOpen === false ? (
+          // Hard-block deposits during close — spec §5.2, equity oracle is stale so the LP would
+          // be entering at a Friday-close anchor with no asymmetric-fee protection until reopen.
+          // Withdrawals stay open via the other tab.
+          <ClosedDeposits />
+        ) : (
+          <DepositMode
+            deployment={deployment}
+            address={address}
+            a0={amount0}
+            setA0={setAmount0}
+            a1={amount1}
+            setA1={setAmount1}
+            user={user}
+            drift={drift}
+            totalShares={totalShares}
+          />
+        )
       ) : (
         <WithdrawMode
           deployment={deployment}
@@ -59,6 +67,19 @@ export function LiquidityPanel() {
         you provide. Deposits are accepted only while the pool is in band and the equity market is
         open; withdrawals are always allowed (even out of band).
       </PanelFootnote>
+    </div>
+  );
+}
+
+function ClosedDeposits() {
+  return (
+    <div className="border border-amber-200/30 bg-amber-200/[0.04] px-5 py-4">
+      <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-200/85">
+        Deposits paused · NYSE closed
+      </div>
+      <p className="mt-2 text-[13px] leading-relaxed text-amber-50/85">
+        Reopens next NYSE session. Withdrawals stay open. <Link href="/docs#market-hours" className="underline underline-offset-4 hover:text-white">Why →</Link>
+      </p>
     </div>
   );
 }

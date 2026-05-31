@@ -1,6 +1,6 @@
 # Twine Protocol — Specification
 
-**Version** v0.11 · **Last updated** May 2026 · **Status** locked for v1 build
+**Version** v0.17 · **Last updated** May 2026 · **Status** locked for v1 build
 
 This is the canonical specification for Twine. When the code and the spec disagree, the spec wins until it is explicitly updated.
 
@@ -160,18 +160,19 @@ Tokenized equity wrappers always come from existing issuers: **xStocks** (Backed
 
 | Contract | Purpose |
 |----------|---------|
-| `TwineHook.sol` | The v4 hook. Implements `beforeInitialize`, `beforeSwap`, `afterSwap`, `beforeAddLiquidity`, `beforeRemoveLiquidity`. Uses a **dynamic LP fee** (dynamic-fee flag + `beforeSwap` fee override) — **not** `beforeSwapReturnDelta`. Single hook serves all pools, parametrized per-pool. |
+| `TwineHook.sol` | The v4 hook. Implements `beforeInitialize`, `beforeSwap`, `afterSwap`, `beforeAddLiquidity`, `beforeRemoveLiquidity`. Uses a **dynamic LP fee** (dynamic-fee flag + `beforeSwap` fee override) — **not** `beforeSwapReturnDelta`. Single hook serves all pools, parametrized per-pool. **Auto-realizes fees** in `afterSwap` by poking `pm.realizeFromHook(key)` — no off-chain keeper needed for steady-state operation. |
 | `BaseHook.sol` | Minimal vendored hook base (PoolManager-gated callbacks + permission-address validation), built on `v4-core` v4.0.0. Vendored because the pinned v4-periphery checkout omitted `BaseHook`. |
-| `TwinePositionManager.sol` | ERC-6909 LP position tracker. One shared full-range position per pool; `shares == liquidity` (exact pro-rata of reserves). Per-share fee accumulator distributes pool fees pro-rata. Also the per-pool **fee router** — splits collected fees into vault rewards / buyback sink / LP share (§7.3). **Non-transferable shares in v1.** |
+| `TwinePositionManager.sol` | ERC-6909 LP position tracker. One shared full-range position per pool; `shares == liquidity` (exact pro-rata of reserves). Per-share fee accumulator distributes pool fees pro-rata. Also the per-pool **fee router** — splits collected fees into vault rewards / buyback sink / LP share (§7.3). Exposes `realizeFromHook(key)` (gated by `msg.sender == key.hooks`) which the hook calls from `afterSwap` to realize and route fees automatically on every trade. **Non-transferable shares in v1.** |
 | `LiquidityAmounts.sol` | Vendored minimal liquidity↔amount math (full-range), on solady fixed-point. |
 | `TwineUnderwritingVault.sol` | Per-pool insurance vault. Holds staked STRAND, pays out on structural breaks. One vault per Twine pool. |
 | `STRAND.sol` | The protocol token. Standard ERC-20 with mint controls. |
-| `TwineGovernor.sol` | Pool authorization, parameter updates, emergency pause. |
+| `TwineGovernor.sol` | Pool authorization, parameter updates, emergency pause. Forwards `setHookPositionManager` so the PM can be repointed without a hook redeploy. |
 | `ChainlinkOracleAdapter.sol` | Reads Chainlink feeds with staleness checks. |
 | `DualOracleAdapter.sol` | Wraps a primary + backup `IPriceOracle` and enforces an inter-source deviation cap (default 2%). Silent failover when one source is stale; reverts on both-stale or deviation. Used for the equity (MSTRX) leg per §6.1/§6.3. |
 | `SpreadMath.sol` | Library: ratio calculation, fee curve, z-score buffer. |
-| `RebalanceKeeper.sol` | Permissionless `keep(PoolKey)` — forces a structural-break check (so drawdown fires on oracle-driven drift even without a swap) and pokes the PM's fee realization (refreshes the per-share accumulator and routes vault/buyback cuts). Holds no funds, no privileges. |
-| `MultisigMarketHours.sol` | Production `IMarketHoursOracle`: a multisig-updated open/closed flag with `lastUpdate`. §6.1 fallback when no on-chain NYSE feed is available. |
+| `RebalanceKeeper.sol` | Permissionless `keep(PoolKey)` — forces a structural-break check so drawdown fires on oracle-driven drift even **without a swap**. With v0.17's in-hook auto-realization, fee realization no longer needs the keeper — its remaining job collapses to this edge case. Holds no funds, no privileges. |
+| `MultisigMarketHours.sol` | Multisig-flag `IMarketHoursOracle`. Used in early deployments; superseded in v0.16 by `NyseHoursOracle` for the live Base Sepolia pool. Kept available as a fallback for cases where the on-chain calendar isn't suitable (e.g. a hypothetical 24/7 commodity equity). |
+| `NyseHoursOracle.sol` | Pure-Solidity `IMarketHoursOracle` that computes NYSE regular hours (9:30 AM – 4:00 PM ET, Mon-Fri minus holidays) directly on-chain. No off-chain feed, no LINK, no keeper. Hardcoded NYSE 2026 + 2027 holidays + DST transitions through 2030; governance can extend both. |
 | `script/Deploy.s.sol` + `script/CreatePool.s.sol` | Forge deploy scripts: HookMiner-mined hook address, multisig-owned STRAND/PM/Governor, per-pool vault + authorize + initialize + wiring. Verified by `test/integration/Deploy.t.sol`. |
 
 ### 5.2 Hook callback flow
@@ -344,10 +345,11 @@ These are real unknowns the build must resolve. They are not stylistic preferenc
 
 This spec uses semantic versioning. Material changes (new mechanics, asset class changes, tokenomics adjustments) bump the major version. Clarifications bump the minor.
 
-Current: **v0.16** (first onchain deployment — Base Sepolia)
+Current: **v0.17** (auto-realization in afterSwap + NyseHoursOracle live)
 
 ### Changelog
 
+- **v0.17** (2026-05-31) — **Automatic fee realization in `afterSwap`** kills the keeper-as-default dependency. New `TwinePositionManager.realizeFromHook(PoolKey)` (gated by `msg.sender == address(key.hooks)`) skips the unlock wrapper and runs the same `modifyLiquidity(0) → take → route` path `collectFees` does; `TwineHook._afterSwap` calls it on every swap when the PM is wired. Result: vault rewards and the buyback sink update on every trade, no off-chain anything required for steady state. `RebalanceKeeper.keep` still covers the oracle-moved-without-a-swap edge case but is no longer load-bearing. Also: replaced the live `MultisigMarketHours` with `NyseHoursOracle` — pure on-chain NYSE calendar (9:30–16:00 ET Mon-Fri minus hardcoded holidays + DST transitions through 2030, governance-extensible), so weekend behavior is now an honest "deposits paused, withdrawals open, swaps at flat fee" instead of a multisig flag. Redeployed the full system on Base Sepolia: hook `0xf45D…aAC0`, pm `0x867d…F864`, gov `0xF438…8233`, vault `0x23FC…10dA`, strand `0x1B7b…0522`, router `0x9cc4…E3A3`, NYSE oracle `0xb866…19b8` — all four new-bytecode contracts verified on BaseScan; multisig owns governance/strand/pm/oracle. 190 tests pass (3 new for auto-realization).
 - **v0.16** (2026-05-30) — **Twine is live on Base Sepolia.** `script/DeployTestnet.s.sol` ran end-to-end against the real Base Sepolia v4 `PoolManager` (`0x05E73…3408`) and deployed every contract — 17 onchain txs, ~0.06 mETH (~$0.15) total. HookMiner produced an address whose low 14 bits exactly encode the required permission bitmask (`0x2AC0`), and the PoolManager accepted it on `initialize`, proving the CREATE2 mining math holds in production. Deployed addresses are written to `frontend/lib/deployments/base-sepolia.json` and surfaced by `/app`'s `DeploymentPanel`. Trade/Provide/Stake panel writes (`useWriteContract`) are the next wiring step.
 - **v0.15** (2026-05-29) — Added `test/integration/Lifecycle.t.sol`: a single linear test that walks the entire Twine system through every mechanic in realistic sequence (deploy + governance + stakers + LPs + in-band/out-of-band swaps + fee routing + reward claims + concentrated-add rejection + stale-oracle revert + market-closed suppression + keeper-forced break/drawdown + cooldown unstake + governance resolves + out-of-band LP burn + governance handoff + final invariants). Catches state-combination bugs the focused tests don't reach. 16 phases, 2.1M gas, passes first try; full suite: 174 tests, 0 high slither.
 - **v0.14** (2026-05-29) — `/app` is now an interface, not a tape: a `Trade / Provide liquidity / Stake STRAND` tab strip below the pool card with real form panels (swap direction flip, deposit/withdraw modes, stake/unstake/claim modes). Buttons are disabled with honest pre-launch copy ("Pre-launch — execution unavailable" when connected, "Connect wallet" otherwise) so users *see* where they will act once contracts are deployed — without faking values. `next.config.mjs` aliases two optional wagmi peer deps (`@react-native-async-storage/async-storage`, `pino-pretty`) to `false` so the build resolves cleanly. Verified live: `GET /` and `GET /app` both 200, `Ready in 4.3s`.
