@@ -37,6 +37,14 @@ export function useSwapQuote({
   const [error, setError] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
+  // CRITICAL: poolKey is a fresh object literal on every parent render, so it can't go into
+  // the dep array directly — the effect would re-run on every render, perpetually clearing the
+  // debounce timer before it ever fires (this caused the "stuck on quoting" symptom). We derive
+  // a stable string id from its fields and depend on that instead.
+  const poolKeyId = poolKey
+    ? `${poolKey.currency0}|${poolKey.currency1}|${poolKey.fee}|${poolKey.tickSpacing}|${poolKey.hooks}`
+    : "";
+
   useEffect(() => {
     if (!publicClient || !router || !poolKey || !account) {
       setQuote(undefined);
@@ -81,7 +89,8 @@ export function useSwapQuote({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [publicClient, router, poolKey, zeroForOne, amountIn, account]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicClient, router, poolKeyId, zeroForOne, amountIn, account]);
 
   return {quote, error, loading};
 }
