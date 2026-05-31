@@ -68,7 +68,6 @@ export default function DocsPage() {
 {`Spec version       v0.16
 Build phase        Phases 0–10 complete  ·  live on Base Sepolia
 Contracts          Solidity 0.8.26  (BUSL hook / MIT elsewhere)
-Tests              181 passing  ·  100k invariant calls clean
 Audit              pending
 Network            Base Sepolia testnet  (mocked equity leg)`}
           </pre>

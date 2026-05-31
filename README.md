@@ -55,6 +55,7 @@ Pre-launch on testnet. The full system — hook, position manager, governor, und
 |---|---|
 | Spec | [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) v0.16 |
 | Source | Solidity 0.8.26, Foundry, BUSL-1.1 hook, MIT elsewhere |
+| Tests | 181 passing &middot; 100k invariant calls clean &middot; [CI](https://github.com/sp0oby/twine/actions/workflows/ci.yml) |
 | Testnet | Base Sepolia, chain id 84532 |
 | Mainnet | Not deployed |
 | Audit | Not done; bug bounty pending audit |
