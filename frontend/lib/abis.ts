@@ -329,6 +329,20 @@ export const marketHoursAbi = [
     inputs: [],
     outputs: [{name: "", type: "uint64"}],
   },
+  {
+    type: "function",
+    name: "owner",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{name: "", type: "address"}],
+  },
+  {
+    type: "function",
+    name: "setOpen",
+    stateMutability: "nonpayable",
+    inputs: [{name: "_open", type: "bool"}],
+    outputs: [],
+  },
 ] as const;
 
 /** Just the events the dashboard reads via `getLogs` — used by RecentSwapsPanel and ZScoreChart. */
@@ -341,6 +355,22 @@ export const hookEventsAbi = [
       {indexed: false, name: "driftBps", type: "int256"},
       {indexed: false, name: "asymmetricActive", type: "bool"},
       {indexed: false, name: "structuralBreakTriggered", type: "bool"},
+    ],
+    anonymous: false,
+  },
+] as const;
+
+/** PM events the dashboard reads via getLogs — for the 24h fee tally on PoolCard. */
+export const pmEventsAbi = [
+  {
+    type: "event",
+    name: "FeesRouted",
+    inputs: [
+      {indexed: true, name: "id", type: "uint256"},
+      {indexed: false, name: "vault0", type: "uint256"},
+      {indexed: false, name: "vault1", type: "uint256"},
+      {indexed: false, name: "buyback0", type: "uint256"},
+      {indexed: false, name: "buyback1", type: "uint256"},
     ],
     anonymous: false,
   },
