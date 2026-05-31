@@ -25,7 +25,12 @@ dist/
 # Tooling / sessions
 .claude/
 .cursor/
+CLAUDE.md
+slither.config.json
 *.log
+
+# Stray cloud-sandbox artifacts (canonical OZ lives in lib/openzeppelin-contracts)
+/openzeppelin-contracts/
 
 # Editor-created duplicates (e.g. Finder "Foo 2.toml" copies)
 * 2.*
