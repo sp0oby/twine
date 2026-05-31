@@ -9,8 +9,7 @@
     "strict": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "types": ["./ponder-env.d.ts"]
+    "noEmit": true
   },
   "include": ["./src/**/*", "./ponder.config.ts", "./ponder.schema.ts", "./ponder-env.d.ts"]
 }
