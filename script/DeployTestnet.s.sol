@@ -24,8 +24,11 @@ import {HookMiner} from "./lib/HookMiner.sol";
 /// @notice One-shot testnet bootstrap: deploys mock tokens + oracles + the full Twine system,
 ///         authorizes and initializes a single MSTRX/cbBTC pool, and writes the resulting
 ///         addresses to `frontend/lib/deployments/<chain>.json` so the dashboard can pick them up.
-/// @dev The broadcaster is treated as both the multisig (governance owner) and the
-///      rebalancer / buyback sink — fine for testnet. On mainnet, point those at a real Safe.
+/// @dev Reads optional `MULTISIG_ADDRESS` from env. When set, all Ownable contracts (STRAND,
+///      TwineGovernor, TwinePositionManager, MultisigMarketHours) plus the vault's `rebalancer`
+///      land on the multisig directly — no post-deploy transfer required. When unset, falls back
+///      to the deployer address (useful for fast iteration). The buyback sink stays on the
+///      deployer in both modes; switch it via `TwinePositionManager.setFeeConfig` post-deploy.
 contract DeployTestnet is Script {
     using PoolIdLibrary for PoolKey;
 
@@ -48,22 +51,32 @@ contract DeployTestnet is Script {
     function run() external returns (Deployed memory dep) {
         uint256 pk = vm.envUint("DEPLOYER_PRIVATE_KEY");
         address deployer = vm.addr(pk);
+        address multisig = _envOr("MULTISIG_ADDRESS", deployer);
         IPoolManager poolManager = IPoolManager(vm.envAddress("POOL_MANAGER"));
 
         console2.log("Chain id   ", block.chainid);
         console2.log("Deployer   ", deployer);
+        console2.log("Multisig   ", multisig);
         console2.log("PoolManager", address(poolManager));
 
         vm.startBroadcast(pk);
-        _deployMocks(deployer, dep);
-        _deployCore(deployer, poolManager, dep);
-        _createPool(deployer, poolManager, dep);
+        _deployMocks(deployer, multisig, dep);
+        _deployCore(deployer, multisig, poolManager, dep);
+        _createPool(deployer, multisig, poolManager, dep);
         vm.stopBroadcast();
 
         _logAndPersist(dep, address(poolManager));
     }
 
-    function _deployMocks(address deployer, Deployed memory dep) internal {
+    function _envOr(string memory key, address fallback_) internal view returns (address) {
+        try vm.envAddress(key) returns (address v) {
+            return v;
+        } catch {
+            return fallback_;
+        }
+    }
+
+    function _deployMocks(address deployer, address multisig, Deployed memory dep) internal {
         MockERC20 ta = new MockERC20("Twine Mock MSTRX", "tMSTRX", 18);
         MockERC20 tb = new MockERC20("Twine Mock cbBTC", "tcbBTC", 18);
         // sort by address so currency0 < currency1
@@ -76,18 +89,24 @@ contract DeployTestnet is Script {
         }
         dep.oracle0 = address(new MockPriceOracle(1e18));
         dep.oracle1 = address(new MockPriceOracle(1e18));
-        dep.marketHours = address(new MultisigMarketHours(deployer, true));
+        // Market-hours flag is multisig-controlled (Safe flips it on NYSE open/close + holidays).
+        dep.marketHours = address(new MultisigMarketHours(multisig, true));
         MockERC20(dep.token0).mint(deployer, 1e25);
         MockERC20(dep.token1).mint(deployer, 1e25);
     }
 
-    function _deployCore(address deployer, IPoolManager poolManager, Deployed memory dep) internal {
-        dep.strand = address(new STRAND(deployer));
+    function _deployCore(address deployer, address multisig, IPoolManager poolManager, Deployed memory dep) internal {
+        // STRAND mint authority lives with the multisig from genesis (no script wiring needed).
+        dep.strand = address(new STRAND(multisig));
 
         uint160 flags = uint160(
             Hooks.BEFORE_INITIALIZE_FLAG | Hooks.BEFORE_ADD_LIQUIDITY_FLAG | Hooks.BEFORE_REMOVE_LIQUIDITY_FLAG
                 | Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG
         );
+        // Hook governor starts as the deployer so this script can wire pools below; we hand it
+        // to the TwineGovernor contract a few lines down. TwineGovernor and PM start owned by
+        // the deployer so the script can call setVault / setFeeConfig; ownership is handed to
+        // the multisig at the end of run() once wiring is complete.
         bytes memory hookInit = abi.encodePacked(type(TwineHook).creationCode, abi.encode(poolManager, deployer));
         (address mined, bytes32 salt) = HookMiner.find(flags, hookInit);
         dep.hook = HookMiner.deploy(salt, hookInit);
@@ -98,7 +117,7 @@ contract DeployTestnet is Script {
         TwineHook(dep.hook).setGovernor(dep.governor);
     }
 
-    function _createPool(address deployer, IPoolManager poolManager, Deployed memory dep) internal {
+    function _createPool(address deployer, address multisig, IPoolManager poolManager, Deployed memory dep) internal {
         PoolKey memory key = PoolKey({
             currency0: Currency.wrap(dep.token0),
             currency1: Currency.wrap(dep.token1),
@@ -123,9 +142,18 @@ contract DeployTestnet is Script {
             );
         poolManager.initialize(key, SQRT_PRICE_1_1);
 
-        dep.vault = address(new TwineUnderwritingVault(dep.strand, dep.hook, dep.token0, dep.token1, deployer));
+        // Vault rebalancer is immutable; set it to the multisig at construction so seized STRAND
+        // on a structural-break drawdown lands in multisig custody.
+        dep.vault = address(new TwineUnderwritingVault(dep.strand, dep.hook, dep.token0, dep.token1, multisig));
         TwineGovernor(dep.governor).setVault(key, dep.vault, 2000);
-        TwinePositionManager(dep.pm).setFeeConfig(key, dep.vault, 2000, deployer, 1000);
+        // Buyback sink → multisig; multisig later runs the off-chain market-buy-and-burn.
+        TwinePositionManager(dep.pm).setFeeConfig(key, dep.vault, 2000, multisig, 1000);
+
+        // Ownership handoff: deployer keeps no privileges after the script finishes.
+        if (multisig != deployer) {
+            TwineGovernor(dep.governor).transferOwnership(multisig);
+            TwinePositionManager(dep.pm).setOwner(multisig);
+        }
     }
 
     function _logAndPersist(Deployed memory dep, address poolManagerAddr) internal {
