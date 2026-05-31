@@ -14,7 +14,7 @@ import {useHookSwaps} from "@/hooks/useHookSwaps";
 const WINDOW = 30;
 
 export function ZScoreChart() {
-  const {rows, loading, error, deployment} = useHookSwaps({lookbackBlocks: 150_000n});
+  const {rows, loading, error, deployment} = useHookSwaps();
 
   const series = useMemo(() => computeRollingZ(rows, WINDOW), [rows]);
 
@@ -40,7 +40,13 @@ export function ZScoreChart() {
       {!deployment ? (
         <p className="mt-4 font-mono text-[12px] text-muted">No deployment for this chain.</p>
       ) : error ? (
-        <p className="mt-4 font-mono text-[12px] text-amber-200/85">RPC error: {error.message}</p>
+        <div className="mt-4 border border-amber-200/30 bg-amber-200/[0.04] px-4 py-3 font-mono text-[12px] text-amber-100/95">
+          <div className="uppercase tracking-[0.18em] text-[10px] text-amber-200/85">RPC error</div>
+          <p className="mt-1.5 normal-case break-words">
+            {error.message.slice(0, 240)}
+            {error.message.length > 240 ? "…" : ""}
+          </p>
+        </div>
       ) : !rows ? (
         <p className="mt-4 font-mono text-[12px] text-muted">{loading ? "Loading swap history…" : "—"}</p>
       ) : series.points.length < 2 ? (

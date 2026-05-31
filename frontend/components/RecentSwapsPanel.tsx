@@ -14,7 +14,7 @@ import {explorerTx} from "@/lib/wagmi";
  */
 export function RecentSwapsPanel() {
   const chainId = useChainId();
-  const {newest, loading, error, deployment} = useHookSwaps({lookbackBlocks: 150_000n});
+  const {newest, loading, error, deployment} = useHookSwaps();
 
   return (
     <section className="mt-20">
@@ -31,12 +31,12 @@ export function RecentSwapsPanel() {
       {!deployment ? (
         <p className="mt-4 font-mono text-[12px] text-muted">No deployment for this chain.</p>
       ) : error ? (
-        <p className="mt-4 font-mono text-[12px] text-amber-200/85">RPC error: {error.message}</p>
+        <RpcErrorHint message={error.message} />
       ) : !newest ? (
         <p className="mt-4 font-mono text-[12px] text-muted">{loading ? "Loading swap history…" : "—"}</p>
       ) : newest.length === 0 ? (
         <p className="mt-4 font-mono text-[12px] text-muted">
-          No swaps in the last 150k blocks. Be the first to swap from the Trade tab.
+          No swaps in the recent scan window. Be the first to swap from the Trade tab.
         </p>
       ) : (
         <div className="mt-5 border border-line divide-y divide-line">
@@ -123,6 +123,25 @@ function Tag({
 function signedBps(bps: bigint): string {
   const sign = bps > 0n ? "+" : "";
   return `${sign}${bps.toString()}`;
+}
+
+function RpcErrorHint({message}: {message: string}) {
+  const looksRateLimited =
+    /rate|limit|429|too many|block range/i.test(message) || message.length > 200;
+  return (
+    <div className="mt-4 border border-amber-200/30 bg-amber-200/[0.04] px-4 py-3 font-mono text-[12px] text-amber-100/95">
+      <div className="uppercase tracking-[0.18em] text-[10px] text-amber-200/85">RPC error</div>
+      <p className="mt-1.5 normal-case break-words">{message.slice(0, 240)}{message.length > 240 ? "…" : ""}</p>
+      {looksRateLimited ? (
+        <p className="mt-2 text-amber-50/80">
+          Likely the public Base RPC throttling eth_getLogs. Set{" "}
+          <code className="text-white">NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL</code> in{" "}
+          <code className="text-white">frontend/.env.local</code> to a dedicated provider
+          (Alchemy / QuickNode / Infura) and restart the dev server.
+        </p>
+      ) : null}
+    </div>
+  );
 }
 
 function relative(ts: bigint | undefined): string {

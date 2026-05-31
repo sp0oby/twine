@@ -29,12 +29,15 @@ export type SwapRow = {
  * one's drift. Defaults to scanning back ~150k blocks (about 3 days on Base Sepolia at 2s blocks)
  * but never reaches before the deployment block.
  *
- * No indexer required — falls back to the public Base RPCs the frontend already uses for reads.
+ * Public RPCs (the default fallback in lib/wagmi.ts) clamp `eth_getLogs` ranges aggressively, so
+ * we paginate in fixed-size windows. Configure NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL with a real
+ * provider for fast scans.
  */
 export function useHookSwaps({
-  lookbackBlocks = 150_000n,
+  lookbackBlocks = 25_000n,
   refetchMs = 30_000,
-}: {lookbackBlocks?: bigint; refetchMs?: number} = {}) {
+  chunkSize = 2_000n,
+}: {lookbackBlocks?: bigint; refetchMs?: number; chunkSize?: bigint} = {}) {
   const chainId = useChainId();
   const deployment = getDeployment(chainId);
   const publicClient = usePublicClient({chainId});
@@ -54,24 +57,45 @@ export function useHookSwaps({
       try {
         const latest = await publicClient!.getBlockNumber();
         const from = latest > lookbackBlocks ? latest - lookbackBlocks : 0n;
-        const logs = await publicClient!.getLogs({
-          address: hook,
-          event: hookEventsAbi[0],
-          args: {id: poolId as `0x${string}`},
-          fromBlock: from,
-          toBlock: latest,
-        });
+
+        // Single helper so the inferred type carries `args` through (a typed event ABI is essential).
+        const fetchChunk = (start: bigint, end: bigint) =>
+          publicClient!.getLogs({
+            address: hook,
+            event: hookEventsAbi[0],
+            args: {id: poolId as `0x${string}`},
+            fromBlock: start,
+            toBlock: end,
+          });
+        type ChunkLogs = Awaited<ReturnType<typeof fetchChunk>>;
+
+        // Paginate the scan in `chunkSize`-block windows so we don't blow past public-RPC limits.
+        // Public Base nodes typically cap eth_getLogs at ~10k blocks; 2k is safely below that and
+        // still finishes fast against Alchemy / QuickNode.
+        let logs: ChunkLogs = [] as unknown as ChunkLogs;
+        for (let cursor = from; cursor <= latest; cursor += chunkSize) {
+          if (cancelled) return;
+          const end = cursor + chunkSize - 1n > latest ? latest : cursor + chunkSize - 1n;
+          const slice = await fetchChunk(cursor, end);
+          if (slice.length > 0) logs = logs.concat(slice) as ChunkLogs;
+        }
 
         // Sort ascending so we can classify each row against the previous one's drift.
-        const sorted = [...logs].sort((a, b) => {
-          if (a.blockNumber === b.blockNumber) return (a.logIndex ?? 0) - (b.logIndex ?? 0);
-          return a.blockNumber < b.blockNumber ? -1 : 1;
+        // (Pending logs would have null block numbers; filter them since we only want mined data.)
+        const mined = logs.filter((l) => l.blockNumber !== null);
+        const sorted = [...mined].sort((a, b) => {
+          const ab = a.blockNumber as bigint;
+          const bb = b.blockNumber as bigint;
+          if (ab === bb) return (a.logIndex ?? 0) - (b.logIndex ?? 0);
+          return ab < bb ? -1 : 1;
         });
 
         const enriched: SwapRow[] = [];
         let prevAbs: bigint | undefined = undefined;
         for (const log of sorted) {
-          const driftBps = (log.args.driftBps ?? 0n) as bigint;
+          // viem's strongly typed event args (via the `event:` form above) put fields on `args`.
+          const args = (log as unknown as {args: {driftBps?: bigint; asymmetricActive?: boolean; structuralBreakTriggered?: boolean}}).args;
+          const driftBps = (args.driftBps ?? 0n) as bigint;
           const absDrift = driftBps < 0n ? -driftBps : driftBps;
           let classification: SwapRow["classification"];
           if (prevAbs !== undefined) {
@@ -81,11 +105,11 @@ export function useHookSwaps({
           }
           enriched.push({
             id: `${log.transactionHash}:${log.logIndex}`,
-            blockNumber: log.blockNumber,
+            blockNumber: log.blockNumber as bigint,
             timestamp: undefined,
             driftBps,
-            asymmetricActive: (log.args.asymmetricActive ?? false) as boolean,
-            structuralBreakTriggered: (log.args.structuralBreakTriggered ?? false) as boolean,
+            asymmetricActive: (args.asymmetricActive ?? false) as boolean,
+            structuralBreakTriggered: (args.structuralBreakTriggered ?? false) as boolean,
             classification,
             txHash: log.transactionHash as `0x${string}`,
           });

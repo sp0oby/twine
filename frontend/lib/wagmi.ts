@@ -8,6 +8,15 @@ import {getDefaultConfig} from "@rainbow-me/rainbowkit";
  */
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "twine-dev";
 
+/**
+ * Optional dedicated RPCs. When unset we fall back to the public Base node, which is fine for
+ * basic reads but rate-limits and clamps `eth_getLogs` ranges — set these from .env.local to use
+ * Alchemy / QuickNode / Infura instead. Required for the ZScoreChart + RecentSwapsPanel to work
+ * reliably (they scan ~150k blocks of SwapProcessed events).
+ */
+const baseSepoliaRpc = process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL;
+const baseRpc = process.env.NEXT_PUBLIC_BASE_RPC_URL;
+
 export const config = getDefaultConfig({
   appName: "Twine",
   projectId,
@@ -15,8 +24,8 @@ export const config = getDefaultConfig({
   // Base mainnet stays in the list so users can switch once a mainnet deployment exists.
   chains: [baseSepolia, base],
   transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
+    [base.id]: http(baseRpc),
+    [baseSepolia.id]: http(baseSepoliaRpc),
   },
   ssr: true,
 });
