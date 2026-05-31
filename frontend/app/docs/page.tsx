@@ -65,10 +65,10 @@ export default function DocsPage() {
 
         <Section label="Status">
           <pre className="font-mono text-[13px] leading-[1.8] text-ink/80 border-l border-line pl-5 whitespace-pre">
-{`Spec version       v0.11
-Build phase        0–7 + plug-and-play infra
-Contracts          Solidity 0.8.26  (BUSL / MIT)
-Tests              173 passing  ·  100k invariants clean
+{`Spec version       v0.16
+Build phase        Phases 0–10 complete  ·  live on Base Sepolia
+Contracts          Solidity 0.8.26  (BUSL hook / MIT elsewhere)
+Tests              181 passing  ·  100k invariant calls clean
 Audit              pending
 Network            Base Sepolia testnet  (mocked equity leg)`}
           </pre>
@@ -76,9 +76,21 @@ Network            Base Sepolia testnet  (mocked equity leg)`}
 
         <Section label="Source">
           <ul className="space-y-2 font-mono text-[13px]">
-            <SourceLink href="#" label="PROJECT_SPEC.md" hint="canonical specification" />
-            <SourceLink href="#" label="TODO.md" hint="build progress" />
-            <SourceLink href="#" label="Source on GitHub" hint="contracts + tests" />
+            <SourceLink
+              href="https://github.com/sp0oby/twine/blob/main/PROJECT_SPEC.md"
+              label="PROJECT_SPEC.md"
+              hint="canonical specification"
+            />
+            <SourceLink
+              href="https://github.com/sp0oby/twine/blob/main/TODO.md"
+              label="TODO.md"
+              hint="build progress"
+            />
+            <SourceLink
+              href="https://github.com/sp0oby/twine"
+              label="Source on GitHub"
+              hint="contracts + tests"
+            />
           </ul>
         </Section>
 

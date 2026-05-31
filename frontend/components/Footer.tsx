@@ -10,6 +10,32 @@ export function Footer() {
       <p className="mt-4">
         © Twine. Not affiliated with Strategy, Backed Finance, Coinbase, or Uniswap Labs.
       </p>
+      <nav className="mt-6 flex flex-wrap items-baseline gap-x-5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+        <a
+          href="https://github.com/sp0oby/twine"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-ink transition-colors"
+        >
+          GitHub ↗
+        </a>
+        <a
+          href="https://github.com/sp0oby/twine/blob/main/PROJECT_SPEC.md"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-ink transition-colors"
+        >
+          Spec ↗
+        </a>
+        <a
+          href="https://github.com/sp0oby/twine/blob/main/TODO.md"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-ink transition-colors"
+        >
+          Roadmap ↗
+        </a>
+      </nav>
     </footer>
   );
 }

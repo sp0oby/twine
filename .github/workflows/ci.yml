@@ -32,5 +32,5 @@ jobs:
       - name: Test (ci profile — heavy fuzz/invariant runs)
         run: forge test -vvv
 
-      - name: Gas snapshot check (deterministic tests only — fuzz gas is not reproducible across runs)
-        run: forge snapshot --check --no-match-test "(testFuzz|invariant)"
+      - name: Gas snapshot check (deterministic tests only — fuzz/invariant gas is not reproducible across runs; fork tests skip without RPC)
+        run: forge snapshot --check --no-match-test "(testFuzz|invariant)" --no-match-path "test/fork/*"

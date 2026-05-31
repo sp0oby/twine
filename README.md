@@ -1,5 +1,10 @@
 # Twine
 
+[![CI](https://github.com/sp0oby/twine/actions/workflows/ci.yml/badge.svg)](https://github.com/sp0oby/twine/actions/workflows/ci.yml)
+[![Spec](https://img.shields.io/badge/spec-v0.16-1f6feb?labelColor=0d1117)](./PROJECT_SPEC.md)
+[![Solidity](https://img.shields.io/badge/solidity-0.8.26-363636?labelColor=0d1117)](./foundry.toml)
+[![License](https://img.shields.io/badge/license-BUSL--1.1%20%2F%20MIT-0aa?labelColor=0d1117)](#license)
+
 **A market for the spread between two correlated assets.**
 
 Twine is a Uniswap v4 hook that turns a pool into a continuously-rebalancing pair-trade vehicle. The pool looks like an ordinary v4 pool from the outside. You swap, add liquidity, collect fees. The hook quietly enforces a peg between the pool's internal price and an oracle-derived fair price, which makes the pool a venue for trading the *relationship* between two related assets rather than just one against the other.
@@ -48,14 +53,31 @@ Pre-launch on testnet. The full system — hook, position manager, governor, und
 
 | | |
 |---|---|
-| Spec | `PROJECT_SPEC.md` v0.11 |
+| Spec | [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) v0.16 |
 | Source | Solidity 0.8.26, Foundry, BUSL-1.1 hook, MIT elsewhere |
+| Tests | 181 passing &middot; 100k invariant calls clean &middot; [CI](https://github.com/sp0oby/twine/actions/workflows/ci.yml) |
 | Testnet | Base Sepolia, chain id 84532 |
 | Mainnet | Not deployed |
 | Audit | Not done; bug bounty pending audit |
 | Dashboard | Next.js 14, wagmi/viem, wired against the deployed contracts |
 
-Testnet addresses live in `frontend/lib/deployments/base-sepolia.json` and appear on the dashboard's Deployment panel with BaseScan links.
+### Live on Base Sepolia
+
+The flagship MSTRX/cbBTC pool is live against mocked equity feeds. Every address links to BaseScan.
+
+| Contract | Address |
+|---|---|
+| TwineHook | [`0xc3D0…6ac0`](https://sepolia.basescan.org/address/0xc3D093Ecc9029dAD3684d08c506f957bB0276ac0) |
+| TwinePositionManager | [`0xb851…66a2`](https://sepolia.basescan.org/address/0xb8512f2d1CA89e56CDbB2b7Ef3e94B38434a66a2) |
+| TwineSwapRouter | [`0x356a…ebB2`](https://sepolia.basescan.org/address/0x356a856cc75229F7bD260A6D2601De56f4A0ebB2) |
+| TwineGovernor | [`0x5957…2387`](https://sepolia.basescan.org/address/0x5957034C90cd8e44Ee4361ECbBC41B9E90D72387) |
+| TwineUnderwritingVault | [`0x9eDa…7FFC`](https://sepolia.basescan.org/address/0x9eDaffC2E81986109E87cE6f35243aAc739E7FFC) |
+| STRAND | [`0x4CAD…20e3`](https://sepolia.basescan.org/address/0x4CAD1C5cFA9C20F3cfcC2C8881b4a9fdd63D20e3) |
+| Mock MSTRX (token0) | [`0xA6b3…737e`](https://sepolia.basescan.org/address/0xA6b3748023540af1aD4C4731E8B8A09fACFf737e) |
+| Mock cbBTC (token1) | [`0xc622…0ff2`](https://sepolia.basescan.org/address/0xc6224Cd78116CCcF9392F0035AFAf18fFE980ff2) |
+| MultisigMarketHours | [`0xBf57…C2b3`](https://sepolia.basescan.org/address/0xBf57Ff24C7398029620948Db7F0795C63B31C2b3) |
+
+The canonical machine-readable copy lives in [`frontend/lib/deployments/base-sepolia.json`](./frontend/lib/deployments/base-sepolia.json) and is surfaced live by the dashboard's Deployment panel.
 
 ## Architecture
 
@@ -73,14 +95,14 @@ Every external entry point has NatSpec and a test file in `test/integration/` (r
 
 ## For partners
 
-A few specific asks, in order of how much they'd move things forward:
+Twine is a focused piece of infrastructure: a hook, a vault, a router, a token. It does one thing — make on-chain a pair-trade market that doesn't otherwise exist — and we want production-grade rails underneath it. A few specific asks, in order of how much they'd move things forward:
 
-- **Tokenized-equity issuers.** v1 needs a production-grade MSTRX with predictable mint/burn. v2 wants COINx, MARAx, GLXYx. The design works against Backed and xStocks as written, and we'd love to compare notes with Ondo, Dinari, and anyone shipping equity wrappers.
-- **Oracle providers.** v1 reads Chainlink with stale-price guards. We need an equity-hours-aware feed that's robust on weekends and around halts. If you're building this primitive, get in touch.
-- **Auditors.** The hook is a small surface for a v4-hook audit, but the asymmetric-fee math and structural-break logic deserve a real review before mainnet.
-- **Liquidity bootstrap partners.** Pair-trade markets need both legs deep enough that the corrective discount actually pulls flow in. If you backstop mean-reversion strategies, this should look familiar.
+- **Tokenized-equity issuers (Backed, Ondo, Dinari).** v1 needs a production-grade MSTRX with predictable mint/burn semantics. v2 expands to COINx, MARAx, GLXYx, HOODx, CRCLx. The hook is wrapper-agnostic by design — it sees an ERC-20 with an oracle — and we'd like to coordinate on integration, redemption mechanics, and co-marketing where it makes sense. Twine never issues its own equity; we route flow to yours.
+- **Oracle providers (Chainlink, Pyth, RedStone).** v1 already ships a `ChainlinkOracleAdapter` and a `DualOracleAdapter` with deviation caps and silent failover. The hard problem is an **equity-hours-aware feed** that behaves correctly on weekends, holidays, and trading halts. If you have or are building this primitive, we want to be a launch integration.
+- **Auditors.** The on-chain surface is small for a v4-hook audit: seven contracts, ~1,500 lines of Solidity, 181 tests including a 100k-call invariant suite. The asymmetric-fee math (`SpreadMath.sol`), the structural-break logic, and the vault drawdown path are where we want a Tier-1 set of eyes before mainnet.
+- **Liquidity bootstrap partners and market makers.** Pair-trade markets only work when both legs are deep enough that the corrective discount actually pulls flow in. If you backstop mean-reversion strategies or run inventory on tokenized equities, the asymmetric-fee mechanic should look familiar.
 
-If you're working at the intersection of tokenized real-world assets and on-chain market structure, the dashboard and spec are the fastest read. Questions are welcome.
+If you're working at the intersection of tokenized real-world assets and on-chain market structure, the dashboard and spec are the fastest read. The repo's [Discussions tab](https://github.com/sp0oby/twine/discussions) and [Issues tab](https://github.com/sp0oby/twine/issues) are open; for anything private, open a discussion and we'll move it off-channel.
 
 ## Running locally
 
@@ -102,7 +124,7 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-The splash and docs render at `/` and `/docs`, the dashboard at `/app`. With a wallet on Base Sepolia, the dashboard reads the deployed pool in real time and lets you mint test tokens, provide liquidity, stake STRAND, and (once the router is deployed) swap.
+The splash and docs render at `/` and `/docs`, the dashboard at `/app`. With a wallet on Base Sepolia, the dashboard reads the deployed pool in real time and lets you mint test tokens, swap through `TwineSwapRouter`, provide liquidity, and stake STRAND.
 
 ## License
 
