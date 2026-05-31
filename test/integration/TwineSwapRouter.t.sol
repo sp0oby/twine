@@ -158,9 +158,7 @@ contract TwineSwapRouterTest is Deployers {
 
         // Demand one wei more than achievable.
         vm.prank(ALICE);
-        vm.expectRevert(
-            abi.encodeWithSelector(TwineSwapRouter.InsufficientOutput.selector, quote, quote + 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TwineSwapRouter.InsufficientOutput.selector, quote, quote + 1));
         router.swap(poolKey, true, 1e16, quote + 1, ALICE, ZERO_BYTES);
     }
 

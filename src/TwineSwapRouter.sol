@@ -24,13 +24,7 @@ contract TwineSwapRouter is IUnlockCallback, ReentrancyGuard {
     error ZeroAmount();
     error InsufficientOutput(uint256 received, uint256 minimum);
 
-    event Swap(
-        address indexed payer,
-        address indexed recipient,
-        bool zeroForOne,
-        uint256 amountIn,
-        uint256 amountOut
-    );
+    event Swap(address indexed payer, address indexed recipient, bool zeroForOne, uint256 amountIn, uint256 amountOut);
 
     /// @dev Encoded across the `unlock` boundary.
     struct CallbackData {
@@ -72,7 +66,9 @@ contract TwineSwapRouter is IUnlockCallback, ReentrancyGuard {
         });
 
         bytes memory raw = poolManager.unlock(
-            abi.encode(CallbackData({payer: msg.sender, recipient: recipient, key: key, params: params, hookData: hookData}))
+            abi.encode(
+                CallbackData({payer: msg.sender, recipient: recipient, key: key, params: params, hookData: hookData})
+            )
         );
         amountOut = abi.decode(raw, (uint256));
 

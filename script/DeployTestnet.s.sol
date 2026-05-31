@@ -108,9 +108,10 @@ contract DeployTestnet is Script {
         });
         dep.poolId = PoolId.unwrap(key.toId());
 
-        TwineGovernor(dep.governor).authorizePool(
-            key,
-            TwineHook.AuthParams({
+        TwineGovernor(dep.governor)
+            .authorizePool(
+                key,
+                TwineHook.AuthParams({
                 oracle0: MockPriceOracle(dep.oracle0),
                 oracle1: MockPriceOracle(dep.oracle1),
                 marketHours: MultisigMarketHours(dep.marketHours),
@@ -119,7 +120,7 @@ contract DeployTestnet is Script {
                 toleranceBps: 500,
                 hardThresholdBps: 1500
             })
-        );
+            );
         poolManager.initialize(key, SQRT_PRICE_1_1);
 
         dep.vault = address(new TwineUnderwritingVault(dep.strand, dep.hook, dep.token0, dep.token1, deployer));
