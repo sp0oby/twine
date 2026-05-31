@@ -1,7 +1,15 @@
+import type {Metadata} from "next";
 import Link from "next/link";
 
 import {Header} from "@/components/Header";
 import {Footer} from "@/components/Footer";
+import {DeploymentPanel} from "@/components/DeploymentPanel";
+
+export const metadata: Metadata = {
+  title: "Docs",
+  description:
+    "How the hook works, who owns what, and the live Base Sepolia deployment addresses. The short version of PROJECT_SPEC.md, with links into the canonical source.",
+};
 
 export default function DocsPage() {
   return (
@@ -92,6 +100,8 @@ Network            Base Sepolia testnet  (mocked equity leg)`}
             />
           </ul>
         </Section>
+
+        <DeploymentPanel />
 
         <div className="mt-20">
           <Link

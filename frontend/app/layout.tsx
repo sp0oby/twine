@@ -4,8 +4,11 @@ import "./globals.css";
 import {Providers} from "@/components/Providers";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://twine.market";
+
+// One sentence, written like a human would tell you what this is. Reused across OG/Twitter so
+// link previews on Slack, X, Telegram, etc. say the same thing the splash page says.
 const DESCRIPTION =
-  "Twine is a Uniswap v4 hook for trading the spread between two correlated assets. Pair-trade MSTRX against cbBTC in a single swap, on Base.";
+  "A Uniswap v4 hook that prices every swap against an oracle, so a pool can trade the spread between two related assets instead of just exchanging them. Launch pair is tokenized Strategy stock against Bitcoin.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -14,20 +17,9 @@ export const metadata: Metadata = {
     template: "%s — Twine",
   },
   description: DESCRIPTION,
-  keywords: [
-    "Uniswap v4",
-    "v4 hook",
-    "DeFi",
-    "RWA",
-    "tokenized equity",
-    "pair trade",
-    "MSTR",
-    "Bitcoin",
-    "Base",
-    "AMM",
-    "Ethereum",
-    "Strategy",
-  ],
+  // Deliberately short — five terms that actually describe the thing. Stuffing keyword lists
+  // makes Google rank you lower these days, not higher.
+  keywords: ["Uniswap v4 hook", "pair trade", "tokenized equity", "Base", "MSTR cbBTC"],
   authors: [{name: "Brandon McCall"}],
   creator: "Brandon McCall",
   openGraph: {
@@ -53,7 +45,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  category: "technology",
+  alternates: {canonical: SITE_URL},
 };
 
 export const viewport: Viewport = {

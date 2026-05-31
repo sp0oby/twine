@@ -1,8 +1,15 @@
+import type {Metadata} from "next";
+
 import {Header} from "@/components/Header";
 import {Footer} from "@/components/Footer";
 import {WalletStatus} from "@/components/WalletStatus";
-import {DeploymentPanel} from "@/components/DeploymentPanel";
 import {NetworkBanner} from "@/components/NetworkBanner";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description:
+    "Live view of the MSTRX/cbBTC pool on Base Sepolia: drift band, NYSE-hours state, recent swaps, rolling z-score, and the trade/LP/stake panels.",
+};
 import {PoolCard} from "@/components/PoolCard";
 import {MintFaucet} from "@/components/MintFaucet";
 import {Tabs} from "@/components/Tabs";
@@ -53,8 +60,6 @@ export default function AppPage() {
         <RecentSwapsPanel />
 
         <WalletStatus />
-
-        <DeploymentPanel />
       </article>
       <Footer />
     </main>
