@@ -1,5 +1,6 @@
 "use client";
 
+import {DriftBand} from "@/components/DriftBand";
 import {usePoolReads} from "@/hooks/usePool";
 import {fmtAmount} from "@/lib/format";
 
@@ -19,6 +20,12 @@ export function PoolCard() {
         <StatCell label="Drift (bps)" value={drift !== undefined ? signedBps(drift) : "—"} />
         <StatCell label="LP shares" value={fmtAmount(totalShares)} />
       </dl>
+      <DriftBand
+        driftBps={drift}
+        toleranceBps={config?.toleranceBps ?? deployment?.toleranceBps}
+        hardThresholdBps={config?.hardThresholdBps ?? deployment?.hardThresholdBps}
+        broken={broken}
+      />
       <dl className="grid grid-cols-3 divide-x divide-line text-[13px] border-t border-line">
         <StatCell label="Vault stake" value={fmtAmount(vaultStaked)} />
         <StatCell label="State" value={config ? (config.structuralBreak ? "broken" : "ok") : "—"} />

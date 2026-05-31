@@ -314,6 +314,31 @@ export const oracleAbi = [
   },
 ] as const;
 
+export const marketHoursAbi = [
+  {
+    type: "function",
+    name: "isMarketOpen",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{name: "", type: "bool"}],
+  },
+] as const;
+
+/** Just the events the dashboard reads via `getLogs` — used by RecentSwapsPanel and ZScoreChart. */
+export const hookEventsAbi = [
+  {
+    type: "event",
+    name: "SwapProcessed",
+    inputs: [
+      {indexed: true, name: "id", type: "bytes32"},
+      {indexed: false, name: "driftBps", type: "int256"},
+      {indexed: false, name: "asymmetricActive", type: "bool"},
+      {indexed: false, name: "structuralBreakTriggered", type: "bool"},
+    ],
+    anonymous: false,
+  },
+] as const;
+
 export const swapRouterAbi = [
   {
     type: "function",

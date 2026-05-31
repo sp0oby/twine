@@ -9,11 +9,16 @@ import {Tabs} from "@/components/Tabs";
 import {SwapPanel} from "@/components/panels/SwapPanel";
 import {LiquidityPanel} from "@/components/panels/LiquidityPanel";
 import {VaultPanel} from "@/components/panels/VaultPanel";
+import {MarketStatusBanner} from "@/components/MarketStatusBanner";
+import {DisclosureModal} from "@/components/DisclosureModal";
+import {RecentSwapsPanel} from "@/components/RecentSwapsPanel";
+import {ZScoreChart} from "@/components/ZScoreChart";
 
 export default function AppPage() {
   return (
     <main className="min-h-screen">
       <Header />
+      <DisclosureModal />
       <article className="mx-auto max-w-2xl px-6 pt-24">
         <h1 className="text-[32px] font-medium tracking-[-0.02em] leading-tight">
           MSTRX / cbBTC
@@ -23,6 +28,7 @@ export default function AppPage() {
         </p>
 
         <NetworkBanner />
+        <MarketStatusBanner />
 
         <PoolCard />
 
@@ -42,6 +48,9 @@ export default function AppPage() {
             }}
           />
         </section>
+
+        <ZScoreChart />
+        <RecentSwapsPanel />
 
         <WalletStatus />
 

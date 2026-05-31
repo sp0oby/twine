@@ -6,10 +6,12 @@ import {twineHookAbi, twinePositionManagerAbi, twineUnderwritingVaultAbi} from "
 /**
  * Ponder configuration for the Twine indexer.
  *
- * Addresses are read from env so the same indexer image can target testnet and mainnet. Until a
- * pool is actually deployed (PROJECT_SPEC.md status), set these in `.env.local` from
- * `script/Deploy.s.sol` output and `script/CreatePool.s.sol` output.
+ * Addresses and the target network are env-driven so the same indexer image can target testnet
+ * and mainnet. For Base Sepolia (the current deployment) set `PONDER_NETWORK=baseSepolia` and
+ * populate the address/start-block fields from `frontend/lib/deployments/base-sepolia.json`.
  */
+const network = (process.env.PONDER_NETWORK ?? "baseSepolia") as "base" | "baseSepolia";
+
 export default createConfig({
   networks: {
     base: {
@@ -23,19 +25,19 @@ export default createConfig({
   },
   contracts: {
     TwineHook: {
-      network: "base",
+      network,
       abi: twineHookAbi,
       address: (process.env.PONDER_HOOK_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
       startBlock: Number(process.env.PONDER_START_BLOCK ?? 0),
     },
     TwinePositionManager: {
-      network: "base",
+      network,
       abi: twinePositionManagerAbi,
       address: (process.env.PONDER_PM_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
       startBlock: Number(process.env.PONDER_START_BLOCK ?? 0),
     },
     TwineUnderwritingVault: {
-      network: "base",
+      network,
       abi: twineUnderwritingVaultAbi,
       address: (process.env.PONDER_VAULT_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
       startBlock: Number(process.env.PONDER_START_BLOCK ?? 0),

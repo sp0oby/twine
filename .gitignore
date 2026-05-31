@@ -15,6 +15,7 @@ node_modules/
 .next/
 .ponder/
 dist/
+*.tsbuildinfo
 
 # OS / editor
 .DS_Store

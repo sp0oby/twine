@@ -17,6 +17,10 @@ export function Header() {
           Docs
         </Link>
         <span aria-hidden className="text-line">·</span>
+        <Link href="/governance" className="hover:text-ink transition-colors">
+          Gov
+        </Link>
+        <span aria-hidden className="text-line">·</span>
         <WalletButton />
       </nav>
     </header>

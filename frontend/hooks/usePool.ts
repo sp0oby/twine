@@ -2,7 +2,7 @@
 
 import {useChainId, useReadContract, useReadContracts} from "wagmi";
 
-import {erc20Abi, hookAbi, oracleAbi, pmAbi, vaultAbi} from "@/lib/abis";
+import {erc20Abi, hookAbi, marketHoursAbi, oracleAbi, pmAbi, vaultAbi} from "@/lib/abis";
 import {WAD} from "@/lib/constants";
 import {poolKeyFor, type PoolKey} from "@/lib/poolKey";
 import {getDeployment} from "@/lib/twine";
@@ -28,6 +28,7 @@ export function usePoolReads() {
           {address: deployment.vault, abi: vaultAbi, functionName: "totalShares"},
           {address: deployment.oracle0, abi: oracleAbi, functionName: "getPrice"},
           {address: deployment.oracle1, abi: oracleAbi, functionName: "getPrice"},
+          {address: deployment.marketHours, abi: marketHoursAbi, functionName: "isMarketOpen"},
         ]
       : [],
     query: {enabled: !!deployment, refetchInterval: 12_000},
@@ -35,7 +36,7 @@ export function usePoolReads() {
 
   if (!deployment) return {deployment: null} as const;
 
-  const [drift, config, totalShares, vaultStaked, vaultShares, p0, p1] = (reads.data ?? []) as Array<{
+  const [drift, config, totalShares, vaultStaked, vaultShares, p0, p1, marketOpen] = (reads.data ?? []) as Array<{
     result?: any;
     error?: Error;
   }>;
@@ -54,6 +55,8 @@ export function usePoolReads() {
       | {
           structuralBreak: boolean;
           configured: boolean;
+          toleranceBps: number;
+          hardThresholdBps: number;
         }
       | undefined,
     totalShares: totalShares?.result as bigint | undefined,
@@ -62,6 +65,8 @@ export function usePoolReads() {
     price0,
     price1,
     fairPriceWad,
+    /** `true` when the equity-hours oracle reports the underlying market is open. */
+    marketOpen: marketOpen?.result as boolean | undefined,
     refetch: reads.refetch,
   } as const;
 }
