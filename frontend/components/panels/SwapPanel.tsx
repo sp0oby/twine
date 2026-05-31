@@ -99,11 +99,29 @@ function Live({
   const approveWait = useWaitForTransactionReceipt({hash: approveTx});
   const swapWait = useWaitForTransactionReceipt({hash: swapTx});
 
+  // Optimistic allowance shadow — same fix as LiquidityPanel/VaultPanel. Without this the
+  // on-chain allowance read lags the receipt and the button gets stuck on "Approve".
+  // Keyed by tokenIn so flipping direction resets it.
+  const [optAllow, setOptAllow] = useState<{token: `0x${string}` | undefined; amount: bigint}>({
+    token: undefined,
+    amount: 0n,
+  });
   useEffect(() => {
-    if (approveWait.isSuccess) allowance.refetch();
-  }, [approveWait.isSuccess, allowance]);
+    if (
+      approveWait.isSuccess &&
+      amountInWei !== undefined &&
+      (optAllow.token !== tokenIn || amountInWei > optAllow.amount)
+    ) {
+      setOptAllow({token: tokenIn, amount: amountInWei});
+      allowance.refetch();
+    }
+  }, [approveWait.isSuccess, amountInWei, tokenIn, allowance, optAllow]);
+  const effAllow =
+    optAllow.token === tokenIn && optAllow.amount > (allowance.data ?? 0n)
+      ? optAllow.amount
+      : (allowance.data ?? 0n);
 
-  const needsApproval = amountInWei !== undefined && (allowance.data ?? 0n) < amountInWei;
+  const needsApproval = amountInWei !== undefined && effAllow < amountInWei;
   const slippageBps = parseSlippageBps(slippage);
   const busy = approving || swapping || approveWait.isLoading || swapWait.isLoading;
   const ready = !!address && !!amountInWei && amountInWei > 0n && slippageBps !== undefined && !busy;

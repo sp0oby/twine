@@ -98,17 +98,29 @@ function DepositMode({
   const wait1 = useWaitForTransactionReceipt({hash: tx1});
   const waitMint = useWaitForTransactionReceipt({hash: txMint});
 
-  // wagmi caches the allowance read; force a refetch as soon as either approval confirms
-  // so the button flips from "Approve" to the next step instead of looping forever.
+  // Optimistic allowance shadow: the on-chain `allowance` read can lag the approve receipt by
+  // several seconds (RPC propagation + react-query's cached fetch), which used to leave the
+  // button stuck on "Approve" and made users re-sign in a loop. The moment the receipt confirms
+  // we bump the local shadow to the amount we just approved, AND trigger a real refetch.
+  const [optAllow0, setOptAllow0] = useState<bigint>(0n);
+  const [optAllow1, setOptAllow1] = useState<bigint>(0n);
   useEffect(() => {
-    if (wait0.isSuccess) allow0.refetch();
-  }, [wait0.isSuccess, allow0]);
+    if (wait0.isSuccess && a0Wei !== undefined && a0Wei > optAllow0) {
+      setOptAllow0(a0Wei);
+      allow0.refetch();
+    }
+  }, [wait0.isSuccess, a0Wei, allow0, optAllow0]);
   useEffect(() => {
-    if (wait1.isSuccess) allow1.refetch();
-  }, [wait1.isSuccess, allow1]);
+    if (wait1.isSuccess && a1Wei !== undefined && a1Wei > optAllow1) {
+      setOptAllow1(a1Wei);
+      allow1.refetch();
+    }
+  }, [wait1.isSuccess, a1Wei, allow1, optAllow1]);
 
-  const needs0 = a0Wei !== undefined && (allow0.data ?? 0n) < a0Wei;
-  const needs1 = a1Wei !== undefined && (allow1.data ?? 0n) < a1Wei;
+  const eff0 = max(allow0.data ?? 0n, optAllow0);
+  const eff1 = max(allow1.data ?? 0n, optAllow1);
+  const needs0 = a0Wei !== undefined && eff0 < a0Wei;
+  const needs1 = a1Wei !== undefined && eff1 < a1Wei;
   const busy =
     pending0 || pending1 || pendingMint || wait0.isLoading || wait1.isLoading || waitMint.isLoading;
 
@@ -314,6 +326,10 @@ function parseAmount(v: string, decimals: number): bigint | undefined {
   } catch {
     return undefined;
   }
+}
+
+function max(a: bigint, b: bigint): bigint {
+  return a > b ? a : b;
 }
 
 function signedBps(bps: bigint): string {

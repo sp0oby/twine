@@ -75,13 +75,19 @@ function StakeMode({
   const approveWait = useWaitForTransactionReceipt({hash: approveTx});
   const stakeWait = useWaitForTransactionReceipt({hash: stakeTx});
 
-  // wagmi caches the allowance read; refetch when the approval confirms so the
-  // button advances from "Approve STRAND" to "Stake" instead of looping.
+  // Optimistic allowance shadow — see LiquidityPanel for the same fix. The on-chain allowance
+  // read lags the approve receipt by a few seconds, which used to leave the button stuck on
+  // "Approve STRAND" and force users to re-sign.
+  const [optAllow, setOptAllow] = useState<bigint>(0n);
   useEffect(() => {
-    if (approveWait.isSuccess) allowance.refetch();
-  }, [approveWait.isSuccess, allowance]);
+    if (approveWait.isSuccess && amountWei !== undefined && amountWei > optAllow) {
+      setOptAllow(amountWei);
+      allowance.refetch();
+    }
+  }, [approveWait.isSuccess, amountWei, allowance, optAllow]);
+  const effAllow = (allowance.data ?? 0n) > optAllow ? (allowance.data ?? 0n) : optAllow;
 
-  const needsApproval = amountWei !== undefined && (allowance.data ?? 0n) < amountWei;
+  const needsApproval = amountWei !== undefined && effAllow < amountWei;
   const busy = approving || staking || approveWait.isLoading || stakeWait.isLoading;
   const disabled = !address || amountWei === undefined || amountWei === 0n || busy;
 

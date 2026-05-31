@@ -29,6 +29,7 @@ export function usePoolReads() {
           {address: deployment.oracle0, abi: oracleAbi, functionName: "getPrice"},
           {address: deployment.oracle1, abi: oracleAbi, functionName: "getPrice"},
           {address: deployment.marketHours, abi: marketHoursAbi, functionName: "isMarketOpen"},
+          {address: deployment.marketHours, abi: marketHoursAbi, functionName: "lastUpdate"},
         ]
       : [],
     query: {enabled: !!deployment, refetchInterval: 12_000},
@@ -36,7 +37,7 @@ export function usePoolReads() {
 
   if (!deployment) return {deployment: null} as const;
 
-  const [drift, config, totalShares, vaultStaked, vaultShares, p0, p1, marketOpen] = (reads.data ?? []) as Array<{
+  const [drift, config, totalShares, vaultStaked, vaultShares, p0, p1, marketOpen, marketLast] = (reads.data ?? []) as Array<{
     result?: any;
     error?: Error;
   }>;
@@ -67,6 +68,8 @@ export function usePoolReads() {
     fairPriceWad,
     /** `true` when the equity-hours oracle reports the underlying market is open. */
     marketOpen: marketOpen?.result as boolean | undefined,
+    /** Unix-seconds timestamp of the last `setOpen` write — surface staleness on testnet. */
+    marketHoursLastUpdate: marketLast?.result as bigint | undefined,
     refetch: reads.refetch,
   } as const;
 }
@@ -113,7 +116,9 @@ export function useUserReads(account: `0x${string}` | undefined) {
   } as const;
 }
 
-/** Read a single ERC-20 allowance — used by the panels' approval flow. */
+/** Read a single ERC-20 allowance — used by the panels' approval flow. Polls every 4 s as a
+ *  belt-and-suspenders alongside the explicit refetch() on a confirmed approval receipt.
+ */
 export function useAllowance(
   token: `0x${string}` | undefined,
   owner: `0x${string}` | undefined,
@@ -124,6 +129,6 @@ export function useAllowance(
     abi: erc20Abi,
     functionName: "allowance",
     args: owner && spender ? [owner, spender] : undefined,
-    query: {enabled: !!token && !!owner && !!spender},
+    query: {enabled: !!token && !!owner && !!spender, refetchInterval: 4_000},
   });
 }

@@ -322,6 +322,13 @@ export const marketHoursAbi = [
     inputs: [],
     outputs: [{name: "", type: "bool"}],
   },
+  {
+    type: "function",
+    name: "lastUpdate",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{name: "", type: "uint64"}],
+  },
 ] as const;
 
 /** Just the events the dashboard reads via `getLogs` — used by RecentSwapsPanel and ZScoreChart. */
