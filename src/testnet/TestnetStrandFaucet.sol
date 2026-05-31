@@ -15,10 +15,12 @@ import {SafeTransferLib} from "solady/utils/SafeTransferLib.sol";
 contract TestnetStrandFaucet {
     /// @notice STRAND token this faucet dispenses.
     IERC20 public immutable strand;
-    /// @notice Amount sent to each caller per claim.
-    uint256 public constant DROP_AMOUNT = 1_000e18;
-    /// @notice Minimum interval between claims for the same address.
-    uint256 public constant COOLDOWN = 12 hours;
+    /// @notice Amount sent to each caller per claim. Generous on testnet so a partner trying the
+    ///         stake flow can do it once and have enough left over to experiment.
+    uint256 public constant DROP_AMOUNT = 10_000e18;
+    /// @notice Minimum interval between claims for the same address. Short — this is a
+    ///         UI anti-spam guard, not a sybil protection (testnet has no sybil cost).
+    uint256 public constant COOLDOWN = 60;
 
     /// @notice Timestamp of the last successful claim per address.
     mapping(address user => uint256 timestamp) public lastClaim;

@@ -67,15 +67,16 @@ The flagship MSTRX/cbBTC pool is live against mocked equity feeds. Every address
 
 | Contract | Address |
 |---|---|
-| TwineHook | [`0xf45D…aAC0`](https://sepolia.basescan.org/address/0xf45D12d1a683Dae2f7F574fc093d5B836337aAC0) |
-| TwinePositionManager | [`0x867d…F864`](https://sepolia.basescan.org/address/0x867d425B1bF77C01d728Ae0b72413897F90FF864) |
-| TwineSwapRouter | [`0x9cc4…E3A3`](https://sepolia.basescan.org/address/0x9cc4e54D45b0AbC3A5Df1eef7704EeAb149dE3A3) |
-| TwineGovernor | [`0xF438…8233`](https://sepolia.basescan.org/address/0xF43821EB2A59852448db3428316bd832843a8233) |
-| TwineUnderwritingVault | [`0x23FC…10dA`](https://sepolia.basescan.org/address/0x23FCa95F88c07539169407d13C167e79641C10dA) |
-| STRAND | [`0x1B7b…0522`](https://sepolia.basescan.org/address/0x1B7b2565739AF963445b97E08359CB3230D40522) |
-| Mock MSTRX (token0) | [`0x5E25…Ad0d`](https://sepolia.basescan.org/address/0x5E25B3C27367d05a1e177BD6d643914b3099Ad0d) |
-| Mock cbBTC (token1) | [`0xd94F…33d2`](https://sepolia.basescan.org/address/0xd94Fd3C611D8732a7315976dCfE417c1b66c33d2) |
-| NyseHoursOracle | [`0xb866…19b8`](https://sepolia.basescan.org/address/0xb866bdb52543801ee5c402ccfeb803d9354419b8) |
+| TwineHook | [`0xC5E3…eaC0`](https://sepolia.basescan.org/address/0xC5E3357238255445692feFB489F99863bf6EeaC0) |
+| TwinePositionManager | [`0xdf0F…0Fd0`](https://sepolia.basescan.org/address/0xdf0F7aA4f31aF3088bA558EEd6dd612c47e90Fd0) |
+| TwineSwapRouter | [`0xDbD1…Cf92`](https://sepolia.basescan.org/address/0xDbD19EA0328dB437BdcCac799b198203a42FCf92) |
+| TwineGovernor | [`0x4537…3Cc0`](https://sepolia.basescan.org/address/0x45377adccdC8102b7938f82E98CdBdF046dC3Cc0) |
+| TwineUnderwritingVault | [`0x27AA…12Ac`](https://sepolia.basescan.org/address/0x27AA677242639c008d03CD061E40D9e137b912Ac) |
+| STRAND | [`0x3669…0faE`](https://sepolia.basescan.org/address/0x3669C787077db8a7F9B10B21b32D5900Dbae0faE) |
+| TestnetStrandFaucet | [`0xa085…1358`](https://sepolia.basescan.org/address/0xa085bfc2A2d2368F5614303d70928288fe5E1358) |
+| Mock MSTRX (token0) | [`0xB975…c9A6`](https://sepolia.basescan.org/address/0xB975a9637B95F7E7c49C3A1AdEe64997fd8bc9A6) |
+| Mock cbBTC (token1) | [`0xE7AE…443F`](https://sepolia.basescan.org/address/0xE7AE1E125D5f0C03143ff37D4F7455E4372D443F) |
+| NyseHoursOracle | [`0x196e…8cc3`](https://sepolia.basescan.org/address/0x196e0d919ac5655a3bbc8bb45ea2b4276dd88cc3) |
 
 The canonical machine-readable copy lives in [`frontend/lib/deployments/base-sepolia.json`](./frontend/lib/deployments/base-sepolia.json) and is surfaced live by the dashboard's Deployment panel.
 

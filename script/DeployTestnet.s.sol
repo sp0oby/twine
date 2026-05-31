@@ -18,6 +18,7 @@ import {STRAND} from "../src/STRAND.sol";
 import {MockERC20} from "../src/mocks/MockERC20.sol";
 import {MockPriceOracle} from "../src/mocks/MockPriceOracle.sol";
 import {MultisigMarketHours} from "../src/oracle/MultisigMarketHours.sol";
+import {TestnetStrandFaucet} from "../src/testnet/TestnetStrandFaucet.sol";
 
 import {HookMiner} from "./lib/HookMiner.sol";
 
@@ -45,6 +46,7 @@ contract DeployTestnet is Script {
         address pm;
         address governor;
         address vault;
+        address strandFaucet;
         bytes32 poolId;
     }
 
@@ -63,6 +65,7 @@ contract DeployTestnet is Script {
         _deployMocks(deployer, multisig, dep);
         _deployCore(deployer, multisig, poolManager, dep);
         _createPool(deployer, multisig, poolManager, dep);
+        _deployFaucet(deployer, multisig, dep);
         vm.stopBroadcast();
 
         _logAndPersist(dep, address(poolManager));
@@ -108,7 +111,10 @@ contract DeployTestnet is Script {
         // the deployer so the script can call setVault / setFeeConfig; ownership is handed to
         // the multisig at the end of run() once wiring is complete.
         bytes memory hookInit = abi.encodePacked(type(TwineHook).creationCode, abi.encode(poolManager, deployer));
-        (address mined, bytes32 salt) = HookMiner.find(flags, hookInit);
+        // Seed the salt search with block.timestamp so re-running the script picks a different
+        // starting point — avoids CREATE2 collisions when the same bytecode + deployer have
+        // already produced a hook at the lowest-salt address.
+        (address mined, bytes32 salt) = HookMiner.find(flags, hookInit, block.timestamp);
         dep.hook = HookMiner.deploy(salt, hookInit);
         require(dep.hook == mined, "DeployTestnet: hook mine mismatch");
 
@@ -159,6 +165,16 @@ contract DeployTestnet is Script {
         }
     }
 
+    function _deployFaucet(address deployer, address multisig, Deployed memory dep) internal {
+        dep.strandFaucet = address(new TestnetStrandFaucet(dep.strand));
+        // Pre-fund the faucet inline when the deployer also owns STRAND (single-key testnet mode).
+        // In multisig-owned mode the deployer can't mint, so the faucet ships empty and the
+        // multisig fills it later via `STRAND.mint(faucet, amount)`.
+        if (multisig == deployer) {
+            STRAND(dep.strand).mint(dep.strandFaucet, 10_000_000e18); // 10M STRAND = 1000 drops at 10k each
+        }
+    }
+
     function _logAndPersist(Deployed memory dep, address poolManagerAddr) internal {
         console2.log("");
         console2.log("=== Twine Testnet Deployment ===");
@@ -172,6 +188,7 @@ contract DeployTestnet is Script {
         console2.log("pm           ", dep.pm);
         console2.log("governor     ", dep.governor);
         console2.log("vault        ", dep.vault);
+        console2.log("strandFaucet ", dep.strandFaucet);
 
         string memory chainName = block.chainid == 84532 ? "base-sepolia" : block.chainid == 8453 ? "base" : "unknown";
         string memory path = string.concat("frontend/lib/deployments/", chainName, ".json");
@@ -216,6 +233,9 @@ contract DeployTestnet is Script {
             '",\n',
             '  "marketHours": "',
             vm.toString(dep.marketHours),
+            '",\n',
+            '  "strandFaucet": "',
+            vm.toString(dep.strandFaucet),
             '",\n',
             '  "poolId": "',
             vm.toString(dep.poolId),

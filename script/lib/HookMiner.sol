@@ -26,9 +26,21 @@ library HookMiner {
     /// @return hookAddress The mined deterministic address.
     /// @return salt The salt to use with {deploy}.
     function find(uint160 flags, bytes memory creationCode) internal pure returns (address hookAddress, bytes32 salt) {
+        return find(flags, creationCode, 0);
+    }
+
+    /// @notice Same as {find} but starts the salt search at `startSalt`. Useful when a previous
+    ///         deploy already occupies the lowest-salt address (CREATE2 collision on re-deploy
+    ///         with identical bytecode + deployer) — pass `block.timestamp` or a counter to skip
+    ///         past it and land on a fresh address.
+    function find(uint160 flags, bytes memory creationCode, uint256 startSalt)
+        internal
+        pure
+        returns (address hookAddress, bytes32 salt)
+    {
         bytes32 initCodeHash = keccak256(creationCode);
         for (uint256 i; i < MAX_ITERATIONS; i++) {
-            salt = bytes32(i);
+            salt = bytes32(startSalt + i);
             hookAddress = _computeAddress(salt, initCodeHash);
             if (uint160(hookAddress) & FLAGS_MASK == flags) return (hookAddress, salt);
         }

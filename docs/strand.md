@@ -74,14 +74,17 @@ The handoff from multisig to v2 governance is built two ways: `transferOwnership
 
 | | |
 |---|---|
-| STRAND contract | [`0x1B7b2565739AF963445b97E08359CB3230D40522`](https://sepolia.basescan.org/address/0x1B7b2565739AF963445b97E08359CB3230D40522) |
-| Owner | Multisig [`0x935B53040Bf112A9E93297Ac9603b5BA9F0c7Aa0`](https://sepolia.basescan.org/address/0x935B53040Bf112A9E93297Ac9603b5BA9F0c7Aa0) |
-| Faucet (testnet only) | [`0xc827ecC5b9056F21bD371bA34c462fB8FA304Dd5`](https://sepolia.basescan.org/address/0xc827ecC5b9056F21bD371bA34c462fB8FA304Dd5) |
-| Faucet drop | 1,000 STRAND per address, 12h cooldown |
+| STRAND contract | [`0x3669C787077db8a7F9B10B21b32D5900Dbae0faE`](https://sepolia.basescan.org/address/0x3669C787077db8a7F9B10B21b32D5900Dbae0faE) |
+| Owner | Deployer EOA (testnet only — iteration mode) |
+| Faucet | [`0xa085bfc2A2d2368F5614303d70928288fe5E1358`](https://sepolia.basescan.org/address/0xa085bfc2A2d2368F5614303d70928288fe5E1358) |
+| Faucet drop | 10,000 STRAND per address, 60s cooldown |
+| Faucet pre-funded | 10,000,000 STRAND (1000 drops worth) |
 
-The faucet (`src/testnet/TestnetStrandFaucet.sol`) is a pre-funded contract with a public `claim()`. The dashboard's mint panel calls it for STRAND so demo users can stake without needing the multisig. The faucet contract is testnet-only and never deployed on mainnet.
+The faucet (`src/testnet/TestnetStrandFaucet.sol`) is a pre-funded contract with a public `claim()`. The dashboard's mint panel calls it for STRAND so any user can stake without needing privileged access. The faucet contract is testnet-only and never deployed on mainnet.
 
-To refill the faucet, the multisig calls `STRAND.mint(faucet, amount)` directly — see the deploy script.
+> **Testnet ownership note.** On testnet the deployer EOA owns STRAND so we can iterate quickly (redeploy, refund the faucet, etc) without Safe friction every time. This is *not* the mainnet posture — see "Mainnet contract" and "Mainnet launch checklist" below.
+
+To refill the faucet, the deployer calls `STRAND.mint(faucet, amount)` (or, on mainnet, the multisig does it).
 
 ### Mainnet — not deployed
 
