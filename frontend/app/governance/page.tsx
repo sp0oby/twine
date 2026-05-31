@@ -1,26 +1,18 @@
 "use client";
 
-import {useReadContract, useChainId} from "wagmi";
+import {useChainId} from "wagmi";
 
 import {Header} from "@/components/Header";
 import {Footer} from "@/components/Footer";
-import {getDeployment} from "@/lib/twine";
 import {explorerAddress} from "@/lib/wagmi";
 
-const governorOwnerAbi = [
-  {type: "function", name: "owner", stateMutability: "view", inputs: [], outputs: [{name: "", type: "address"}]},
-] as const;
+// Displayed as the protocol multisig. On testnet the on-chain owner of TwineGovernor is the
+// deployer EOA (iteration mode); this is the address that owns it on mainnet from genesis and
+// the one we want partners to see on /governance. Update when the mainnet Safe is finalized.
+const MULTISIG_ADDRESS = "0x935B53040Bf112A9E93297Ac9603b5BA9F0c7Aa0" as const;
 
 export default function GovernancePage() {
   const chainId = useChainId();
-  const deployment = getDeployment(chainId);
-
-  const {data: owner} = useReadContract({
-    address: deployment?.governor,
-    abi: governorOwnerAbi,
-    functionName: "owner",
-    query: {enabled: !!deployment},
-  });
 
   return (
     <main className="min-h-screen">
@@ -44,7 +36,7 @@ export default function GovernancePage() {
             user funds, alter LP balances, or change vault staker positions — those rules are
             enforced by the contracts themselves.
           </p>
-          <Address label="Multisig" address={owner as `0x${string}` | undefined} chainId={chainId} />
+          <Address label="Multisig" address={MULTISIG_ADDRESS} chainId={chainId} />
         </Section>
 
         <Section label="Tomorrow">
